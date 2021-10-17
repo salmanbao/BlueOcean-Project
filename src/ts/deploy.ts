@@ -10,7 +10,8 @@ export const contractNames = {
   BlueOceanToken: 'BlueOceanToken',
   BlueOceanDAOProxy: 'BlueOceanDAOProxy',
   BlueOceanExchange: 'BlueOceanExchange',
-  BlueOceanAtomicizer:'BlueOceanAtomicizer',
+  AuthenticatedProxy: 'AuthenticatedProxy',
+  BlueOceanAtomicizer: 'BlueOceanAtomicizer',
   BlueOceanProxyRegistry: 'BlueOceanProxyRegistry',
   BlueOceanTokenTransferProxy: 'BlueOceanTokenTransferProxy',
 
