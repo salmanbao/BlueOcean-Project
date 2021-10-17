@@ -35,7 +35,6 @@ import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
-
 import "../registry/ProxyRegistry.sol";
 import "../registry/TokenTransferProxy.sol";
 import "../registry/AuthenticatedProxy.sol";
@@ -451,7 +450,7 @@ contract ExchangeCore is ReentrancyGuarded, Ownable {
 
         /* Calculate order hash. */
         bytes32 hash = hashToSign(order);
-
+        
         /* Assert order has not already been approved. */
         require(!approvedOrders[hash]);
 
@@ -922,7 +921,6 @@ contract ExchangeCore is ReentrancyGuarded, Ownable {
 
         /* Proxy must exist. */
         require(delegateProxy != address(0));
-
         /* Assert implementation. */
         require(
             delegateProxy.implementation() ==
@@ -933,7 +931,6 @@ contract ExchangeCore is ReentrancyGuarded, Ownable {
         AuthenticatedProxy proxy = AuthenticatedProxy(delegateProxy);
 
         /* EFFECTS */
-
         /* Mark previously signed or approved orders as finalized. */
         if (msg.sender != buy.maker) {
             cancelledOrFinalized[buyHash] = true;

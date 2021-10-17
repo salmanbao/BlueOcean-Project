@@ -100,7 +100,7 @@ const config: HardhatUserConfig = {
       accounts: {
         accountsBalance: "100000000000000000000000000000000000000000",
       }
-      
+
     },
     forknet: {
       url: "https://mainnet.infura.io/v3/${process.env.INFURA_KEY}",
@@ -153,9 +153,21 @@ const config: HardhatUserConfig = {
     disambiguatePaths: false,
   },
   watcher: {
+    /* run npx hardhat watch compilation */
     compilation: {
       tasks: ["compile"],
+      verbose: true
     },
+    /* run npx hardhat watch test */
+    test: {
+      tasks: [{ command: 'test', params: {logs:true, noCompile: true, testFiles: ["./test/src/BlueOcean.spec.ts"] } }],
+      files: ['./test/src/*'],
+      verbose: true
+    },
+    /* run npx hardhat watch ci */
+    ci: {
+      tasks: ["clean", { command: "compile", params: { quiet: true } }, { command: "test", params: { noCompile: true, testFiles: ["./test/src/BlueOcean.spec.ts"] } }],
+    }
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,

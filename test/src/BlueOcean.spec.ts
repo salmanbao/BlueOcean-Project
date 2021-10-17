@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { Contract, BigNumber, Signer } from "ethers";
 import hre, { ethers } from "hardhat";
 import "@nomiclabs/hardhat-ethers";
-import { getTime, hashOrder, hashToSign, makeOrder, matchOrder } from "../utils/utilities";
+import { getTime, hashOrder, hashToSign, Identities, makeOrder, matchOrder } from "../utils/utilities";
 
 describe("BlueOcean Exchange", function () {
 
@@ -22,8 +22,10 @@ describe("BlueOcean Exchange", function () {
     hre.tracer.nameTags[await signers[1].getAddress()] = "USER1";
     hre.tracer.nameTags[await signers[2].getAddress()] = "USER2";
     hre.tracer.nameTags[await signers[3].getAddress()] = "USER3";
-    hre.tracer.nameTags[await signers[4].getAddress()] = "BUYER";
-    hre.tracer.nameTags[await signers[5].getAddress()] = "SELLER";
+    hre.tracer.nameTags[await signers[4].getAddress()] = "BUYER1";
+    hre.tracer.nameTags[await signers[5].getAddress()] = "SELLER1";
+    hre.tracer.nameTags[await signers[6].getAddress()] = "BUYER2";
+    hre.tracer.nameTags[await signers[7].getAddress()] = "SELLER2";
     hre.tracer.nameTags[await signers[10].getAddress()] = "FEE_RECIPIENT";
 
     const TestToken = await ethers.getContractFactory("TestToken", signers[0]);
@@ -187,8 +189,20 @@ describe("BlueOcean Exchange", function () {
 
   it("should allow proxy creation", async function () {
     hre.tracer.nameTags[await proxyRegistryInstance.callStatic.delegateProxyImplementation()] = "AuthenticatedProxy"
-    await proxyRegistryInstance.registerProxy()
-    hre.tracer.nameTags[await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress())] = "OwnableDelegateProxy"
+    await proxyRegistryInstance.connect(signers[0]).registerProxy()
+    hre.tracer.nameTags[await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress())] = "ADMIN-OwnableDelegateProxy"
+
+    await proxyRegistryInstance.connect(signers[4]).registerProxy()
+    hre.tracer.nameTags[await proxyRegistryInstance.callStatic.proxies(await signers[4].getAddress())] = "BUYER1-OwnableDelegateProxy"
+
+    await proxyRegistryInstance.connect(signers[5]).registerProxy()
+    hre.tracer.nameTags[await proxyRegistryInstance.callStatic.proxies(await signers[5].getAddress())] = "SELLER1-OwnableDelegateProxy"
+
+    await proxyRegistryInstance.connect(signers[6]).registerProxy()
+    hre.tracer.nameTags[await proxyRegistryInstance.callStatic.proxies(await signers[6].getAddress())] = "SELLER2-OwnableDelegateProxy"
+
+    await proxyRegistryInstance.connect(signers[7]).registerProxy()
+    hre.tracer.nameTags[await proxyRegistryInstance.callStatic.proxies(await signers[7].getAddress())] = "SELLER2-OwnableDelegateProxy"
   })
 
   it("should match order hash", async function () {
@@ -495,10 +509,15 @@ describe("BlueOcean Exchange", function () {
 
   it("should allow simple order matching", async function () {
     const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
-    const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[0].getAddress());
-    const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[0].getAddress());
+    const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[6].getAddress());
+    const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[7].getAddress());
     sell.side = 1
-    expect(await matchOrder(buy, sell, 0, signers, exchangeInstance)).to.be.equal(true)
+    const identities: Identities = {
+      matcher: signers[11],
+      buyer: signers[6],
+      seller: signers[7],
+    }
+    expect(await matchOrder(buy, sell, 0, identities, exchangeInstance)).to.be.equal(true)
   })
 
   it("should not allow match with mismatched calldata", async function () {
@@ -510,7 +529,13 @@ describe("BlueOcean Exchange", function () {
     buy.replacementPattern = '0x00000000'
     sell.calldata = '0xff00ff00'
     sell.replacementPattern = '0x00ff00ff'
-    await expect(matchOrder(buy, sell, 0, signers, exchangeInstance)).to.be.reverted
+
+    const identities: Identities = {
+      matcher: signers[11],
+      buyer: signers[4],
+      seller: signers[5]
+    }
+    await expect(matchOrder(buy, sell, 0, identities, exchangeInstance)).to.be.reverted
 
   })
 
@@ -523,35 +548,55 @@ describe("BlueOcean Exchange", function () {
     sell.replacementPattern = '0x00000000'
     buy.calldata = '0xff00ff00'
     buy.replacementPattern = '0x00ff00ff'
-    await expect(matchOrder(buy, sell, 0, signers, exchangeInstance)).to.be.reverted
+
+    const identities: Identities = {
+      matcher: signers[11],
+      buyer: signers[4],
+      seller: signers[5]
+    }
+    await expect(matchOrder(buy, sell, 0, identities, exchangeInstance)).to.be.reverted
   })
 
   it("should allow simple order matching with special-case Ether", async function () {
     const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
-    const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[0].getAddress());
-    const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[0].getAddress());
+    const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[4].getAddress());
+    const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[5].getAddress());
     sell.side = 1
     buy.paymentToken = '0x0000000000000000000000000000000000000000'
+    buy.salt = 2
     sell.paymentToken = '0x0000000000000000000000000000000000000000'
-    await matchOrder(buy, sell, 0, signers, exchangeInstance)
+    sell.salt = 2
+    const identities: Identities = {
+      matcher: signers[11],
+      buyer: signers[4],
+      seller: signers[5]
+    }
+    await matchOrder(buy, sell, 0, identities, exchangeInstance)
   })
 
   it("should allow simple order matching with special-case Ether, nonzero price", async function () {
     const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
-    const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[0].getAddress());
-    const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[0].getAddress());
+    const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[4].getAddress());
+    const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[5].getAddress());
     sell.side = 1
     buy.paymentToken = '0x0000000000000000000000000000000000000000'
     sell.paymentToken = '0x0000000000000000000000000000000000000000'
     buy.basePrice = 1
     sell.basePrice = 1
-    await matchOrder(buy, sell, 1, signers, exchangeInstance)
+    buy.salt = 3
+    sell.salt = 3
+    const identities: Identities = {
+      matcher: signers[11],
+      buyer: signers[4],
+      seller: signers[5]
+    }
+    await matchOrder(buy, sell, 1, identities, exchangeInstance)
   })
 
   it("should allow simple order matching with special-case Ether, nonzero fees, new fee method", async function () {
     const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
-    const buy = makeOrder(exchangeInstance.address, false, proxy, await signers[0].getAddress());
-    const sell = makeOrder(exchangeInstance.address, true, proxy, await signers[0].getAddress());
+    const buy = makeOrder(exchangeInstance.address, false, proxy, await signers[4].getAddress());
+    const sell = makeOrder(exchangeInstance.address, true, proxy, await signers[5].getAddress());
     sell.side = 1
     buy.feeMethod = 1
     sell.feeMethod = 1
@@ -560,14 +605,21 @@ describe("BlueOcean Exchange", function () {
     buy.basePrice = 10
     sell.basePrice = 10
     sell.makerProtocolFee = 100
-    sell.makerRelayerFee = 100
-    await expect(matchOrder(buy, sell, 10, signers, exchangeInstance)).to.be.reverted
+    sell.makerRelayerFee =
+      buy.salt = 4
+    sell.salt = 4
+    const identities: Identities = {
+      matcher: signers[11],
+      buyer: signers[4],
+      seller: signers[5]
+    }
+    await expect(matchOrder(buy, sell, 10, identities, exchangeInstance)).to.be.reverted
   })
 
   it("should allow simple order matching with special-case Ether, nonzero fees, new fee method, taker", async function () {
     const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
-    const buy = makeOrder(exchangeInstance.address, false, proxy, await signers[0].getAddress());
-    const sell = makeOrder(exchangeInstance.address, true, proxy, await signers[0].getAddress());
+    const buy = makeOrder(exchangeInstance.address, false, proxy, await signers[4].getAddress());
+    const sell = makeOrder(exchangeInstance.address, true, proxy, await signers[5].getAddress());
     sell.side = 1
     buy.feeMethod = 1
     sell.feeMethod = 1
@@ -579,17 +631,23 @@ describe("BlueOcean Exchange", function () {
     sell.takerRelayerFee = 100
     buy.takerProtocolFee = 100
     buy.takerRelayerFee = 100
-    await matchOrder(buy, sell, 10200, signers, exchangeInstance)
+    buy.salt = 5
+    sell.salt = 5
+    const identities: Identities = {
+      matcher: signers[11],
+      buyer: signers[4],
+      seller: signers[5]
+    }
+    await matchOrder(buy, sell, 10200, identities, exchangeInstance)
   })
 
   it("should allow simple order matching with special-case Ether, nonzero fees, new fee method, both maker / taker", async function () {
     const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
-    const buy = makeOrder(exchangeInstance.address, false, proxy, await signers[0].getAddress());
-    const sell = makeOrder(exchangeInstance.address, true, proxy, await signers[0].getAddress());
+    const buy = makeOrder(exchangeInstance.address, false, proxy, await signers[4].getAddress());
+    const sell = makeOrder(exchangeInstance.address, true, proxy, await signers[5].getAddress());
     sell.side = 1
     buy.feeMethod = 1
     sell.feeMethod = 1
-    buy.salt = 40
     buy.paymentToken = '0x0000000000000000000000000000000000000000'
     sell.paymentToken = '0x0000000000000000000000000000000000000000'
     buy.basePrice = 10000
@@ -600,67 +658,107 @@ describe("BlueOcean Exchange", function () {
     sell.takerRelayerFee = 100
     buy.takerProtocolFee = 100
     buy.takerRelayerFee = 100
-    await matchOrder(buy, sell, 10200, signers, exchangeInstance)
+    buy.salt = 6
+    sell.salt = 6
+    const identities: Identities = {
+      matcher: signers[11],
+      buyer: signers[4],
+      seller: signers[5]
+    }
+    await matchOrder(buy, sell, 10200, identities, exchangeInstance)
   })
 
   it("should allow simple order matching with special-case Ether, nonzero price, overpayment", async function () {
     const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
-    const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[0].getAddress());
-    const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[0].getAddress());
+    const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[4].getAddress());
+    const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[5].getAddress());
     sell.side = 1
     buy.paymentToken = '0x0000000000000000000000000000000000000000'
     sell.paymentToken = '0x0000000000000000000000000000000000000000'
     buy.basePrice = 101
     sell.basePrice = 101
-    await matchOrder(buy, sell, 105, signers, exchangeInstance)
+    buy.salt = 7
+    sell.salt = 7
+    const identities: Identities = {
+      matcher: signers[11],
+      buyer: signers[4],
+      seller: signers[5]
+    }
+    await matchOrder(buy, sell, 105, identities, exchangeInstance)
   })
 
   it("should not allow simple order matching with special-case Ether, nonzero price, wrong value", async function () {
     const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
-    const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[0].getAddress());
-    const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[0].getAddress());
+    const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[4].getAddress());
+    const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[5].getAddress());
     sell.side = 1
     buy.paymentToken = '0x0000000000000000000000000000000000000000'
     sell.paymentToken = '0x0000000000000000000000000000000000000000'
     buy.basePrice = 100
     sell.basePrice = 100
-    await matchOrder(buy, sell, 10, signers, exchangeInstance)
+    buy.salt = 8
+    sell.salt = 8
+    const identities: Identities = {
+      matcher: signers[11],
+      buyer: signers[4],
+      seller: signers[5]
+    }
+    await matchOrder(buy, sell, 10, identities, exchangeInstance)
   })
 
   it("should allow simple order matching, second fee method", async function () {
     await exchangeInstance.changeMinimumTakerProtocolFee(0)
 
     const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
-    const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[0].getAddress());
-    const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[0].getAddress());
+    const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[4].getAddress());
+    const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[5].getAddress());
     sell.side = 1
     buy.feeMethod = 1
     sell.feeMethod = 1
+    buy.salt = 9
+    sell.salt = 9
     buy.paymentToken = testTokenInstance.address
     sell.paymentToken = testTokenInstance.address
-    await matchOrder(buy, sell, 0, signers, exchangeInstance)
+    const identities: Identities = {
+      matcher: signers[11],
+      buyer: signers[4],
+      seller: signers[5]
+    }
+    await matchOrder(buy, sell, 0, identities, exchangeInstance)
   })
 
   it("should allow simple order matching, second fee method, nonzero price", async function () {
+    await testTokenInstance.connect(signers[0]).transfer(await signers[4].getAddress(), 100000)
+    await testTokenInstance.connect(signers[0]).transfer(await signers[5].getAddress(), 100000)
+
+    await testTokenInstance.connect(signers[4]).approve(tokenTransferProxyInstance.address, 100000)
+    await testTokenInstance.connect(signers[5]).approve(tokenTransferProxyInstance.address, 100000)
+
+
     const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
-    const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[0].getAddress());
-    const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[0].getAddress());
+    const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[4].getAddress());
+    const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[5].getAddress());
     sell.side = 1
     buy.feeMethod = 1
     sell.feeMethod = 1
     buy.basePrice = 10000
     sell.basePrice = 10000
-    buy.salt = 5123
-    sell.salt = 12389
+    buy.salt = 10
+    sell.salt = 10
     buy.paymentToken = testTokenInstance.address
     sell.paymentToken = testTokenInstance.address
-    await matchOrder(buy, sell, 0, signers, exchangeInstance)
+    const identities: Identities = {
+      matcher: signers[11],
+      buyer: signers[4],
+      seller: signers[5]
+    }
+    await matchOrder(buy, sell, 0, identities, exchangeInstance)
   })
 
   it("should allow simple order matching, second fee method, real taker relayer fees", async function () {
     const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
-    const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[0].getAddress());
-    const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[0].getAddress());
+    const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[4].getAddress());
+    const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[5].getAddress());
     sell.side = 1
     buy.feeMethod = 1
     sell.feeMethod = 1
@@ -670,13 +768,18 @@ describe("BlueOcean Exchange", function () {
     buy.takerRelayerFee = 100
     buy.paymentToken = testTokenInstance.address
     sell.paymentToken = testTokenInstance.address
-    await matchOrder(buy, sell, 0, signers, exchangeInstance)
+    const identities: Identities = {
+      matcher: signers[11],
+      buyer: signers[4],
+      seller: signers[5]
+    }
+    await matchOrder(buy, sell, 0, identities, exchangeInstance)
   })
 
   it("should allow simple order matching, second fee method, real taker protocol fees", async function () {
     const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
-    const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[0].getAddress());
-    const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[0].getAddress());
+    const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[4].getAddress());
+    const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[5].getAddress());
     sell.side = 1
     buy.feeMethod = 1
     sell.feeMethod = 1
@@ -686,13 +789,18 @@ describe("BlueOcean Exchange", function () {
     buy.takerProtocolFee = 100
     buy.paymentToken = testTokenInstance.address
     sell.paymentToken = testTokenInstance.address
-    await matchOrder(buy, sell, 0, signers, exchangeInstance)
+    const identities: Identities = {
+      matcher: signers[11],
+      buyer: signers[4],
+      seller: signers[5]
+    }
+    await matchOrder(buy, sell, 0, identities, exchangeInstance)
   })
 
   it("should allow simple order matching, second fee method, real maker protocol fees", async function () {
     const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
-    const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[0].getAddress());
-    const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[0].getAddress());
+    const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[4].getAddress());
+    const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[5].getAddress());
     sell.side = 1
     buy.feeMethod = 1
     sell.feeMethod = 1
@@ -702,13 +810,18 @@ describe("BlueOcean Exchange", function () {
     buy.makerProtocolFee = 100
     buy.paymentToken = testTokenInstance.address
     sell.paymentToken = testTokenInstance.address
-    await matchOrder(buy, sell, 0, signers, exchangeInstance)
+    const identities: Identities = {
+      matcher: signers[11],
+      buyer: signers[4],
+      seller: signers[5]
+    }
+    await matchOrder(buy, sell, 0, identities, exchangeInstance)
   })
 
   it("should allow simple order matching, second fee method, all fees", async function () {
     const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
-    const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[0].getAddress());
-    const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[0].getAddress());
+    const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[4].getAddress());
+    const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[5].getAddress());
     sell.side = 1
     buy.feeMethod = 1
     sell.feeMethod = 1
@@ -724,13 +837,18 @@ describe("BlueOcean Exchange", function () {
     buy.takerRelayerFee = 100
     buy.paymentToken = testTokenInstance.address
     sell.paymentToken = testTokenInstance.address
-    await matchOrder(buy, sell, 0, signers, exchangeInstance)
+    const identities: Identities = {
+      matcher: signers[11],
+      buyer: signers[4],
+      seller: signers[5]
+    }
+    await matchOrder(buy, sell, 0, identities, exchangeInstance)
   })
 
   it("should allow simple order matching, second fee method, all fees, swapped maker/taker", async function () {
     const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
-    const buy = makeOrder(exchangeInstance.address, false, proxy, await signers[0].getAddress());
-    const sell = makeOrder(exchangeInstance.address, true, proxy, await signers[0].getAddress());
+    const buy = makeOrder(exchangeInstance.address, false, proxy, await signers[4].getAddress());
+    const sell = makeOrder(exchangeInstance.address, true, proxy, await signers[5].getAddress());
     sell.side = 1
     buy.feeMethod = 1
     sell.feeMethod = 1
@@ -746,29 +864,252 @@ describe("BlueOcean Exchange", function () {
     buy.takerRelayerFee = 100
     buy.paymentToken = testTokenInstance.address
     sell.paymentToken = testTokenInstance.address
-    await matchOrder(buy, sell, 0, signers, exchangeInstance)
+    const identities: Identities = {
+      matcher: signers[11],
+      buyer: signers[4],
+      seller: signers[5]
+    }
+    await matchOrder(buy, sell, 0, identities, exchangeInstance)
   })
 
   it("should not allow order matching twice", async function () {
     const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
-    const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[0].getAddress());
-    const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[0].getAddress());
+    const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[4].getAddress());
+    const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[5].getAddress());
     sell.side = 1
-    await expect(matchOrder(buy, sell, 0, signers, exchangeInstance)).to.be.reverted
+    const identities: Identities = {
+      matcher: signers[11],
+      buyer: signers[4],
+      seller: signers[5]
+    }
+    await expect(matchOrder(buy, sell, 0, identities, exchangeInstance)).to.be.reverted
   })
 
   it("should not allow order match if proxy changes", async function () {
     const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
-    const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[0].getAddress());
-    const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[0].getAddress());
+    const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[4].getAddress());
+    const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[5].getAddress());
     sell.side = 1
     buy.salt = 123981
     sell.salt = 12381980
+    const identities: Identities = {
+      matcher: signers[11],
+      buyer: signers[4],
+      seller: signers[5]
+    }
+    const ownableDelegateProxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress())
+    const OwnabledDelegateProxy = await ethers.getContractFactory("OwnableDelegateProxy", signers[0]);
+    ownabledDelegateProxyInstance = OwnabledDelegateProxy.attach(ownableDelegateProxy)
+    ownabledDelegateProxyInstance.connect(signers[0]).upgradeTo(proxyRegistryInstance.address)
+    await expect(matchOrder(buy, sell, 0, identities, exchangeInstance)).to.be.reverted;
+    const implementation = await proxyRegistryInstance.callStatic.delegateProxyImplementation()
+    await ownabledDelegateProxyInstance.connect(signers[0]).upgradeTo(implementation)
+  })
 
-    const ownableDelegateProxy =await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress())
-    console.log(ownableDelegateProxy)
+  it('should not allow proxy reentrancy', async function () {
+    const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
+    const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[4].getAddress());
+    const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[5].getAddress());
+    sell.side = 1
+    sell.salt = 1223
+    buy.salt = 113
+    sell.target = exchangeInstance.address
+    buy.target = exchangeInstance.address
+    console.log(exchangeInstance.interface.getFunction("atomicMatch_"))
+    const calldata = exchangeInstance.interface.encodeFunctionData("atomicMatch_", [
+      [buy.exchange, buy.maker, buy.taker, buy.feeRecipient, buy.target, buy.staticTarget, buy.paymentToken, sell.exchange, sell.maker, sell.taker, sell.feeRecipient, sell.target, sell.staticTarget, sell.paymentToken],
+      [buy.makerRelayerFee, buy.takerRelayerFee, buy.makerProtocolFee, buy.takerProtocolFee, buy.basePrice, buy.extra, buy.listingTime, buy.expirationTime, buy.salt, sell.makerRelayerFee, sell.takerRelayerFee, sell.makerProtocolFee, sell.takerProtocolFee, sell.basePrice, sell.extra, sell.listingTime, sell.expirationTime, sell.salt],
+      [buy.feeMethod, buy.side, buy.saleKind, buy.howToCall, sell.feeMethod, sell.side, sell.saleKind, sell.howToCall],
+      buy.calldata,
+      sell.calldata,
+      buy.replacementPattern,
+      sell.replacementPattern,
+      buy.staticExtradata,
+      sell.staticExtradata,
+      [0, 0],
+      ['0x0000000000000000000000000000000000000000000000000000000000000000',
+        '0x0000000000000000000000000000000000000000000000000000000000000000',
+        '0x0000000000000000000000000000000000000000000000000000000000000000',
+        '0x0000000000000000000000000000000000000000000000000000000000000000',
+        '0x0000000000000000000000000000000000000000000000000000000000000000']
+    ]
+    )
+    sell.calldata = calldata
+    buy.calldata = calldata
 
-    // await expect(matchOrder(buy, sell, 0, signers, exchangeInstance)).to.be.reverted
+    const identities: Identities = {
+      matcher: signers[11],
+      buyer: signers[4],
+      seller: signers[5]
+    }
+    await expect(matchOrder(buy, sell, 0, identities, exchangeInstance)).to.be.reverted;
+
+  })
+
+  it('should fail with same side', async function () {
+    const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
+    const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[4].getAddress());
+    const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[5].getAddress());
+    const identities: Identities = {
+      matcher: signers[11],
+      buyer: signers[4],
+      seller: signers[5]
+    }
+    await expect(matchOrder(buy, sell, 0, identities, exchangeInstance)).to.be.reverted;
+  })
+
+  it('should fail with different payment token', async function () {
+    const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
+    const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[4].getAddress());
+    const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[5].getAddress());
+    sell.side = 1
+    sell.salt = 43332
+    buy.salt = 5343
+    buy.paymentToken = await signers[0].getAddress()
+    const identities: Identities = {
+      matcher: signers[11],
+      buyer: signers[4],
+      seller: signers[5]
+    }
+    await expect(matchOrder(buy, sell, 0, identities, exchangeInstance)).to.be.reverted;
+  })
+
+  it('should fail with wrong maker/taker', async function () {
+    const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
+    const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[4].getAddress());
+    const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[5].getAddress());
+    sell.side = 1
+    sell.salt = 1234
+    buy.salt = 4321
+    buy.taker = await signers[10].getAddress()
+    const identities: Identities = {
+      matcher: signers[11],
+      buyer: signers[4],
+      seller: signers[5]
+    }
+    await expect(matchOrder(buy, sell, 0, identities, exchangeInstance)).to.be.reverted;
+  })
+
+  it('should succeed with zero-address taker', async function () {
+    const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
+    const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[4].getAddress());
+    const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[5].getAddress());
+    sell.side = 1
+    sell.salt = 1214
+    buy.salt = 4311
+    buy.taker = '0x0000000000000000000000000000000000000000'
+    const identities: Identities = {
+      matcher: signers[11],
+      buyer: signers[4],
+      seller: signers[5]
+    }
+    await matchOrder(buy, sell, 0, identities, exchangeInstance)
+  })
+
+  it('should fail with different target', async function () {
+    const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
+    const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[4].getAddress());
+    const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[5].getAddress());
+    sell.side = 1
+    sell.salt = 1114
+    buy.salt = 4221
+    buy.target = await signers[10].getAddress()
+    const identities: Identities = {
+      matcher: signers[11],
+      buyer: signers[4],
+      seller: signers[5]
+    }
+    await expect(matchOrder(buy, sell, 0, identities, exchangeInstance)).to.be.reverted;
+  })
+
+  it('should fail with different howToCall', async function () {
+
+  })
+
+  it('should fail with listing time past now', () => {
+
+  })
+
+  it('should fail with expiration time prior to now', () => {
+
+  })
+
+  it('should succeed with real token transfer', async function () {
+    const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
+    const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[4].getAddress());
+    const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[5].getAddress());
+    sell.side = 1
+    sell.salt = 44422
+    buy.salt = 54429
+    buy.paymentToken = testTokenInstance.address
+    sell.paymentToken = testTokenInstance.address
+    buy.basePrice = 10
+    sell.basePrice = 10
+    const identities: Identities = {
+      matcher: signers[11],
+      buyer: signers[4],
+      seller: signers[5]
+    }
+    await matchOrder(buy, sell, 0, identities, exchangeInstance)
+  })
+
+  it('should succeed with real fee', async function () {
+    const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
+    const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[4].getAddress());
+    const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[5].getAddress());
+    sell.side = 1
+    sell.salt = 42122
+    buy.salt = 53233
+    buy.makerRelayerFee = 10
+    buy.takerRelayerFee = 10
+    sell.makerRelayerFee = 10
+    sell.takerRelayerFee = 10
+    const identities: Identities = {
+      matcher: signers[11],
+      buyer: signers[4],
+      seller: signers[5]
+    }
+    await matchOrder(buy, sell, 0, identities, exchangeInstance)
+  })
+
+  it('should succeed with real fee, opposite maker-taker', () => {
+
+  })
+
+  it('should fail with real fee but insufficient amount', () => {
+
+  })
+
+  it('should fail with real fee but unmatching fees', () => {
+
+  })
+
+  it('should fail with real fee but unmatching fees, opposite maker/taker', () => {
+
+  })
+
+  it('should succeed with successful static call', () => {
+
+  })
+
+  it('should succeed with successful static call sell-side', () => {
+
+  })
+
+  it('should succeed with successful static call both-side', () => {
+
+  })
+
+  it('should fail with unsuccessful static call', () => {
+
+  })
+
+  it('should fail with unsuccessful static call sell-side', () => {
+
+  })
+
+  it('should fail after proxy revocation', () => {
+
   })
 
 
