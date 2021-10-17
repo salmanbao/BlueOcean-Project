@@ -160,13 +160,35 @@ const config: HardhatUserConfig = {
     },
     /* run npx hardhat watch test */
     test: {
-      tasks: [{ command: 'test', params: {logs:true, noCompile: true, testFiles: ["./test/src/BlueOcean.spec.ts"] } }],
+      tasks: [{
+        command: 'test',
+        params: {
+          logs: true, noCompile: true,
+          testFiles: [
+            "./test/src/BlueOceanExchange.spec.ts",
+            "./test/src/BlueOceanProxyRegistry.spec.ts",
+            "./test/src/BlueOceanTokenTransferProxy.spec.ts",
+          ]
+        }
+      }],
       files: ['./test/src/*'],
       verbose: true
     },
     /* run npx hardhat watch ci */
     ci: {
-      tasks: ["clean", { command: "compile", params: { quiet: true } }, { command: "test", params: { noCompile: true, testFiles: ["./test/src/BlueOcean.spec.ts"] } }],
+      tasks: [
+        "clean", { command: "compile", params: { quiet: true } },
+        {
+          command: "test",
+          params: {
+            noCompile: true,
+            testFiles: [
+              "./test/src/BlueOceanExchange.spec.ts",
+              "./test/src/BlueOceanProxyRegistry.spec.ts",
+              "./test/src/BlueOceanTokenTransferProxy.spec.ts",
+            ]
+          }
+        }],
     }
   },
   gasReporter: {

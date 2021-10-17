@@ -1,7 +1,7 @@
 import { rejects } from "assert";
 import { expect } from "chai";
-import { sign } from "crypto";
-import { ethers, BigNumber, Signer, Contract } from "ethers";
+import { ethers } from "hardhat";
+import { BigNumber, Signer, Contract } from "ethers";
 import hre from "hardhat";
 
 
@@ -35,6 +35,12 @@ interface IOrder {
 export const getTime = async (): Promise<number> => {
     return (await hre.ethers.provider.getBlock("latest")).timestamp
 }
+
+export async function increaseTime(duration: number): Promise<void> {
+    ethers.provider.send("evm_increaseTime", [duration]);
+    ethers.provider.send("evm_mine", []);
+}
+
 
 export const hashOrder = (order: IOrder) => {
     return ethers.utils.solidityKeccak256(
