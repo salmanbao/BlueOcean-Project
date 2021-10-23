@@ -57,9 +57,15 @@ contract Exchange is ExchangeCore {
         return arr;
     }
 
-    /**
-     * @dev Call calculateFinalPrice - library function exposed for testing.
-     */
+    /// @notice This function will help to calculate final price of a trade between assets.
+    /// @dev Call calculateFinalPrice - library function exposed for testing.
+    /// @param side It tells about side (BUY/SELL)
+    /// @param saleKind It tells about sale kind (FixedPrice / Dutch Auction)
+    /// @param basePrice Order base price
+    /// @param extra Order extra price data
+    /// @param listingTime Order listing time in unix timestamp
+    /// @param expirationTime Order expiration time. It will be zero for fixed price.
+    /// @return price return the final price according to the parameters
     function calculateFinalPrice(
         SaleKindInterface.Side side,
         SaleKindInterface.SaleKind saleKind,
@@ -168,8 +174,21 @@ contract Exchange is ExchangeCore {
     }
 
     /**
-     * @dev Call validateOrderParameters - Solidity ABI encoding limitation workaround, hopefully temporary.
+     * @dev 
      */
+
+    /// @notice This function will help to validate order parameters.
+    /// @dev Call validateOrderParameters - Solidity ABI encoding limitation workaround, hopefully temporary.
+    /// @param addrs addresses for making Order struct in a single array @see Order strcut
+    /// @param uints all uints in a sigle array required for making Order struct @see Order strcut
+    /// @param feeMethod Fee method (protocol token or split fee))
+    /// @param side It tells about side (BUY/SELL)
+    /// @param saleKind It tells about sale kind (FixedPrice / Dutch Auction)
+    /// @param howToCall HowToCall (CALL/DELEGATECALL)
+    /// @param calldata Calldata.
+    /// @param replacementPattern Calldata replacement pattern, or an empty byte array for no replacement.
+    /// @param staticExtradata Static call extra data.
+    /// @return price return the boolean according to the parameters
     function validateOrderParameters_(
         address[7] addrs,
         uint256[9] uints,

@@ -1,5 +1,4 @@
 import 'hardhat-deploy';
-import 'hardhat-docgen';
 import 'hardhat-tracer';
 import 'hardhat-watcher';
 import yargs from "yargs";
@@ -7,11 +6,11 @@ import "solidity-coverage";
 import "@typechain/hardhat";
 import 'hardhat-abi-exporter';
 import "hardhat-gas-reporter";
-import { utils } from 'ethers';
 import 'hardhat-contract-sizer';
 import * as dotenv from "dotenv";
+import "@nomiclabs/hardhat-web3";
 import "@nomiclabs/hardhat-waffle";
-import "@nomiclabs/hardhat-ganache";
+// import "@nomiclabs/hardhat-ganache";
 import "@nomiclabs/hardhat-etherscan";
 import { HardhatUserConfig, task } from "hardhat/config";
 import type { HttpNetworkUserConfig } from "hardhat/types";
@@ -86,12 +85,6 @@ const config: HardhatUserConfig = {
         }
       }
     ],
-    overrides: {
-      "contracts/Foo.sol": {
-        version: "0.5.5",
-        settings: {}
-      }
-    }
   },
   defaultNetwork: "hardhat",
   networks: {
@@ -204,15 +197,7 @@ const config: HardhatUserConfig = {
     spacing: 2,
     pretty: true,
   },
-  docgen: {
-    path: './docs',
-    clear: true,
-    runOnCompile: false,
-    only:[
-      'contracts/BlueOceanExchange.sol'
-    ]
-  }
-  
+
 };
 
 export default config;

@@ -1,11 +1,11 @@
 import { expect } from "chai";
-import { Contract, BigNumber, Signer } from "ethers";
-import hre, { ethers } from "hardhat";
 import "@nomiclabs/hardhat-ethers";
+import hre, { ethers } from "hardhat";
+import { Contract, BigNumber, Signer } from "ethers";
 import { getTime, hashOrder, hashToSign, Identities, makeOrder, matchOrder } from "../utils/utilities";
 
 describe("BlueOcean Exchange", function () {
-
+  
   let signers: Signer[];
 
   let exchangeInstance: Contract;
@@ -281,6 +281,7 @@ describe("BlueOcean Exchange", function () {
     order.saleKind = 0
     const hash = hashOrder(order)
     let signature = await signers[0].signMessage(hash)
+    
     signature = signature.substr(2)
     const r = '0x' + signature.slice(0, 64)
     const s = '0x' + signature.slice(64, 128)

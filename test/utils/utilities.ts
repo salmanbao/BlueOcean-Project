@@ -1,8 +1,7 @@
-import { rejects } from "assert";
+import hre from "hardhat";
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { BigNumber, Signer, Contract } from "ethers";
-import hre from "hardhat";
 
 
 interface IOrder {
@@ -161,7 +160,6 @@ export const matchOrder = async (buy: IOrder, sell: IOrder, value: number, signe
         try {
             const buyHash = hashOrder(buy)
             const sellHash = hashOrder(sell)
-
             let buySignature = await signers.buyer.signMessage(buyHash)
 
             buySignature = buySignature.substr(2)
