@@ -10,7 +10,7 @@ import 'hardhat-contract-sizer';
 import * as dotenv from "dotenv";
 import "@nomiclabs/hardhat-web3";
 import "@nomiclabs/hardhat-waffle";
-// import "@nomiclabs/hardhat-ganache";
+import "@nomiclabs/hardhat-ganache";
 import "@nomiclabs/hardhat-etherscan";
 import { HardhatUserConfig, task } from "hardhat/config";
 import type { HttpNetworkUserConfig } from "hardhat/types";
