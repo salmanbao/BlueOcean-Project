@@ -77,6 +77,12 @@ contract ExchangeCore is ReentrancyGuarded, Ownable {
         SplitFee
     }
 
+    /* Fee Recipient Type: protocol fee or relayer fee. */
+    enum FeeRecipientType {
+        Protocol,
+        Relayer
+    }
+
     /* Inverse basis point. */
     uint256 public constant INVERSE_BASIS_POINT = 10000;
 
@@ -139,6 +145,14 @@ contract ExchangeCore is ReentrancyGuarded, Ownable {
         /* Order salt, used to prevent duplicate hashes. */
         uint256 salt;
     }
+
+    event Refund(address indexed account, uint256 amount);
+    event ProtocolFee(
+        address indexed account,
+         uint256 fee,
+          address currency,
+          FeeRecipientType recipientType
+          );
 
     event OrderApprovedPartOne(
         bytes32 indexed hash,
@@ -450,7 +464,7 @@ contract ExchangeCore is ReentrancyGuarded, Ownable {
 
         /* Calculate order hash. */
         bytes32 hash = hashToSign(order);
-        
+
         /* Assert order has not already been approved. */
         require(!approvedOrders[hash]);
 
@@ -630,12 +644,24 @@ contract ExchangeCore is ReentrancyGuarded, Ownable {
                             makerRelayerFee
                         );
                         sell.feeRecipient.transfer(makerRelayerFee);
+                        emit ProtocolFee(
+                            sell.feeRecipient,
+                            makerRelayerFee,
+                            address(0),
+                            FeeRecipientType.Relayer
+                        );
                     } else {
                         transferTokens(
                             sell.paymentToken,
                             sell.maker,
                             sell.feeRecipient,
                             makerRelayerFee
+                        );
+                        emit ProtocolFee(
+                            sell.feeRecipient,
+                            makerRelayerFee,
+                            sell.paymentToken,
+                            FeeRecipientType.Relayer
                         );
                     }
                 }
@@ -651,12 +677,24 @@ contract ExchangeCore is ReentrancyGuarded, Ownable {
                             takerRelayerFee
                         );
                         sell.feeRecipient.transfer(takerRelayerFee);
+                        emit ProtocolFee(
+                            sell.feeRecipient,
+                            takerRelayerFee,
+                            address(0),
+                            FeeRecipientType.Relayer
+                        );
                     } else {
                         transferTokens(
                             sell.paymentToken,
                             buy.maker,
                             sell.feeRecipient,
                             takerRelayerFee
+                        );
+                        emit ProtocolFee(
+                            sell.feeRecipient,
+                            takerRelayerFee,
+                            sell.paymentToken,
+                            FeeRecipientType.Relayer
                         );
                     }
                 }
@@ -672,12 +710,24 @@ contract ExchangeCore is ReentrancyGuarded, Ownable {
                             makerProtocolFee
                         );
                         protocolFeeRecipient.transfer(makerProtocolFee);
+                        emit ProtocolFee(
+                            protocolFeeRecipient,
+                            makerProtocolFee,
+                            address(0),
+                            FeeRecipientType.Protocol
+                        );
                     } else {
                         transferTokens(
                             sell.paymentToken,
                             sell.maker,
                             protocolFeeRecipient,
                             makerProtocolFee
+                        );
+                        emit ProtocolFee(
+                            protocolFeeRecipient,
+                            makerProtocolFee,
+                            sell.paymentToken,
+                            FeeRecipientType.Protocol
                         );
                     }
                 }
@@ -693,12 +743,24 @@ contract ExchangeCore is ReentrancyGuarded, Ownable {
                             takerProtocolFee
                         );
                         protocolFeeRecipient.transfer(takerProtocolFee);
+                        emit ProtocolFee(
+                            protocolFeeRecipient,
+                            takerProtocolFee,
+                            address(0),
+                            FeeRecipientType.Protocol
+                        );
                     } else {
                         transferTokens(
                             sell.paymentToken,
                             buy.maker,
                             protocolFeeRecipient,
                             takerProtocolFee
+                        );
+                        emit ProtocolFee(
+                            protocolFeeRecipient,
+                            takerProtocolFee,
+                            sell.paymentToken,
+                            FeeRecipientType.Protocol
                         );
                     }
                 }
@@ -767,6 +829,12 @@ contract ExchangeCore is ReentrancyGuarded, Ownable {
                         protocolFeeRecipient,
                         makerProtocolFee
                     );
+                    emit ProtocolFee(
+                        protocolFeeRecipient,
+                        makerProtocolFee,
+                        sell.paymentToken,
+                        FeeRecipientType.Protocol
+                    );
                 }
 
                 if (buy.takerProtocolFee > 0) {
@@ -779,6 +847,12 @@ contract ExchangeCore is ReentrancyGuarded, Ownable {
                         sell.maker,
                         protocolFeeRecipient,
                         takerProtocolFee
+                    );
+                    emit ProtocolFee(
+                        protocolFeeRecipient,
+                        makerProtocolFee,
+                        sell.paymentToken,
+                        FeeRecipientType.Protocol
                     );
                 }
             } else {
@@ -806,6 +880,7 @@ contract ExchangeCore is ReentrancyGuarded, Ownable {
             uint256 diff = SafeMath.sub(msg.value, requiredAmount);
             if (diff > 0) {
                 buy.maker.transfer(diff);
+                emit Refund(buy.maker, diff);
             }
         }
 

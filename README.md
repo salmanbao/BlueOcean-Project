@@ -1,8 +1,8 @@
-# Advanced Sample Hardhat Project
+# BlueOcean Project
 
-This project demonstrates an advanced Hardhat use case, integrating other tools commonly used alongside Hardhat in the ecosystem.
+BlueOcean is a NFT marketplace built upon opensea smart contracts.
 
-The project comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts. It also comes with a variety of other tools, preconfigured to work with the project code.
+The project comes with a variety of other tools, preconfigured to work with the project code.
 
 Try running some of the following tasks:
 
@@ -25,6 +25,23 @@ npx solhint 'contracts/**/*.sol'
 npx solhint 'contracts/**/*.sol' --fix
 ```
 
+# BlueOcean Smart Contract Addresses on Rinkeby
+
+```
+TestToken                   => 0x9B23972e96549e23D23e967CC3F15e5f6Ed77458
+TestStatic                  => 0x86157fa3f01180C5E7E9921D3fd56492F9baf7F5
+BlueOceanProxyRegistry      => 0x8A56411Dd68FB00b4EA8A93A966Cb5Ba2e537F3c
+BlueOceanTokenTransferProxy => 0x659d81Fd7113C461805131ceA48323c14d9cD5cF
+BlueOceanExchange           => 0xb6104Ab14f23D5E9950b56Bf999655e851Eb91c1
+
+```
+
+# Run scripts
+```
+npx hardhat run ./scripts/BlueOceanExchange/<file-name> --network <network-name>
+```
+
+
 # Etherscan verification
 
 To try out Etherscan verification, you first need to deploy a contract to an Ethereum network that's supported by Etherscan, such as Ropsten.
@@ -40,7 +57,3 @@ Then, copy the deployment address and paste it in to replace `DEPLOYED_CONTRACT_
 ```shell
 npx hardhat verify --network ropsten DEPLOYED_CONTRACT_ADDRESS "Hello, Hardhat!"
 ```
-
-# Performance optimizations
-
-For faster runs of your tests and scripts, consider skipping ts-node's type checking by setting the environment variable `TS_NODE_TRANSPILE_ONLY` to `1` in hardhat's environment. For more details see [the documentation](https://hardhat.org/guides/typescript.html#performance-optimizations).

@@ -4,11 +4,17 @@
   "directories": {
     "test": "test"
   },
+  "author": {
+    "name": "BlueOcean Project Developers",
+    "email": "salmancodez@gmail.com"
+  },
   "scripts": {
     "prepack": "npm build",
-    "test": "hardhat test --logs",
+    "test": "hardhat test",
     "clean": "hardhat clean",
     "build": "hardhat compile",
+    "docs:build": "hardhat docgen",
+    "test:logs": "hardhat test --logs",
     "watch": "hardhat watch compilation",
     "lint:ts": "eslint --max-warnings 0",
     "lint": "yarn fmt:sol && yarn lint:ts",
@@ -17,8 +23,8 @@
     "deploy:network": "hardhat deploy --network",
     "fmt:sol": "prettier 'contracts/**/*.sol' -w",
     "size": "hardhat size-contracts --show-stack-traces",
-    "verify:network": "hardhat verify --network <contract-address>",
-    "coverage": "hardhat coverage --testfiles ./test/contracts"
+    "coverage": "hardhat coverage --testfiles ./test/src",
+    "verify:network": "hardhat verify --network <contract-address>"
   },
   "repository": {
     "type": "git"

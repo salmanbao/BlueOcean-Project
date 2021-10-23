@@ -238,7 +238,7 @@ export const matchOrder = async (buy: IOrder, sell: IOrder, value: number, signe
                 sell.staticExtradata,
                 [bv, sv],
                 [br, bs, sr, ss, '0x0000000000000000000000000000000000000000000000000000000000000000'],
-                { value: ethers.utils.parseEther(value.toString()) || 0 }
+                { value: ethers.utils.parseEther(value.toFixed(8)) || 0 }
             )
 
             resolve(true)

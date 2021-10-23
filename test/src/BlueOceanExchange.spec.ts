@@ -174,13 +174,13 @@ describe("BlueOcean Exchange", function () {
   })
 
   it("should allow changing minimum maker protocol fee", async function () {
-    await exchangeInstance.changeMinimumMakerProtocolFee(1)
+    await exchangeInstance.connect(signers[0]).changeMinimumMakerProtocolFee(1)
     expect(await exchangeInstance.callStatic.minimumMakerProtocolFee()).to.equal(1)
 
   })
 
   it("should allow changing minimum taker protocol fee", async function () {
-    await exchangeInstance.changeMinimumTakerProtocolFee(1)
+    await exchangeInstance.connect(signers[0]).changeMinimumTakerProtocolFee(1)
     expect(await exchangeInstance.callStatic.minimumTakerProtocolFee()).to.equal(1)
   })
 
@@ -326,7 +326,6 @@ describe("BlueOcean Exchange", function () {
   })
 
   it("should not validate order with invalid maker protocol fees", async function () {
-    await exchangeInstance.changeMinimumMakerProtocolFee(1)
     const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
     const order = makeOrder(exchangeInstance.address, true, proxy, await signers[0].getAddress());
     order.feeMethod = 1
@@ -351,11 +350,11 @@ describe("BlueOcean Exchange", function () {
       v, r, s
     )).to.be.equal(false)
 
-    await exchangeInstance.changeMinimumMakerProtocolFee(0)
+    await exchangeInstance.connect(signers[0]).changeMinimumMakerProtocolFee(0)
   })
 
   it("should not validate order with invalid taker protocol fees", async function () {
-    await exchangeInstance.changeMinimumMakerProtocolFee(1)
+    await exchangeInstance.connect(signers[0]).changeMinimumMakerProtocolFee(1)
     const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
     const order = makeOrder(exchangeInstance.address, true, proxy, await signers[0].getAddress());
     order.feeMethod = 1
@@ -379,7 +378,7 @@ describe("BlueOcean Exchange", function () {
       order.staticExtradata,
       v, r, s
     )).to.be.equal(false)
-    await exchangeInstance.changeMinimumMakerProtocolFee(0)
+    await exchangeInstance.connect(signers[0]).changeMinimumMakerProtocolFee(0)
   })
 
   it("should have correct prices for dutch auctions", async function () {
@@ -583,8 +582,8 @@ describe("BlueOcean Exchange", function () {
     sell.side = 1
     buy.paymentToken = '0x0000000000000000000000000000000000000000'
     sell.paymentToken = '0x0000000000000000000000000000000000000000'
-    buy.basePrice = 1
-    sell.basePrice = 1
+    buy.basePrice = 10e9      // 0.000000001 ETH
+    sell.basePrice = 10e9     // 0.000000001 ETH
     buy.salt = 3
     sell.salt = 3
     const identities: Identities = {
@@ -604,18 +603,19 @@ describe("BlueOcean Exchange", function () {
     sell.feeMethod = 1
     buy.paymentToken = '0x0000000000000000000000000000000000000000'
     sell.paymentToken = '0x0000000000000000000000000000000000000000'
-    buy.basePrice = 10
-    sell.basePrice = 10
-    sell.makerProtocolFee = 100
-    sell.makerRelayerFee =
-      buy.salt = 4
-    sell.salt = 4
+    buy.basePrice = 10e9
+    sell.basePrice = 10e9
+    sell.makerProtocolFee = 10
+    sell.makerRelayerFee = 10
+    buy.salt = 4
+    sell.salt = 5
     const identities: Identities = {
       matcher: signers[11],
       buyer: signers[4],
       seller: signers[5]
     }
-    await expect(matchOrder(buy, sell, 10, identities, exchangeInstance)).to.be.reverted
+    await exchangeInstance.connect(signers[0]).changeMinimumTakerProtocolFee(0)
+    await matchOrder(buy, sell, 1, identities, exchangeInstance)
   })
 
   it("should allow simple order matching with special-case Ether, nonzero fees, new fee method, taker", async function () {
@@ -627,9 +627,9 @@ describe("BlueOcean Exchange", function () {
     sell.feeMethod = 1
     buy.paymentToken = '0x0000000000000000000000000000000000000000'
     sell.paymentToken = '0x0000000000000000000000000000000000000000'
-    buy.basePrice = 10000
-    sell.basePrice = 10000
-    sell.takerProtocolFee = 100
+    buy.basePrice = 10e9       // 0.000000001 ETH
+    sell.basePrice = 10e9      // 0.000000001 ETH
+    sell.takerProtocolFee = 100 // 2%
     sell.takerRelayerFee = 100
     buy.takerProtocolFee = 100
     buy.takerRelayerFee = 100
@@ -640,7 +640,7 @@ describe("BlueOcean Exchange", function () {
       buyer: signers[4],
       seller: signers[5]
     }
-    await matchOrder(buy, sell, 10200, identities, exchangeInstance)
+    await matchOrder(buy, sell, 1, identities, exchangeInstance)
   })
 
   it("should allow simple order matching with special-case Ether, nonzero fees, new fee method, both maker / taker", async function () {
@@ -917,7 +917,6 @@ describe("BlueOcean Exchange", function () {
     buy.salt = 113
     sell.target = exchangeInstance.address
     buy.target = exchangeInstance.address
-    console.log(exchangeInstance.interface.getFunction("atomicMatch_"))
     const calldata = exchangeInstance.interface.encodeFunctionData("atomicMatch_", [
       [buy.exchange, buy.maker, buy.taker, buy.feeRecipient, buy.target, buy.staticTarget, buy.paymentToken, sell.exchange, sell.maker, sell.taker, sell.feeRecipient, sell.target, sell.staticTarget, sell.paymentToken],
       [buy.makerRelayerFee, buy.takerRelayerFee, buy.makerProtocolFee, buy.takerProtocolFee, buy.basePrice, buy.extra, buy.listingTime, buy.expirationTime, buy.salt, sell.makerRelayerFee, sell.takerRelayerFee, sell.makerProtocolFee, sell.takerProtocolFee, sell.basePrice, sell.extra, sell.listingTime, sell.expirationTime, sell.salt],

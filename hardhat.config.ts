@@ -1,22 +1,20 @@
+import 'hardhat-deploy';
+import 'hardhat-docgen';
+import 'hardhat-tracer';
+import 'hardhat-watcher';
 import yargs from "yargs";
+import "solidity-coverage";
+import "@typechain/hardhat";
+import 'hardhat-abi-exporter';
+import "hardhat-gas-reporter";
 import { utils } from 'ethers';
+import 'hardhat-contract-sizer';
 import * as dotenv from "dotenv";
-
+import "@nomiclabs/hardhat-waffle";
+import "@nomiclabs/hardhat-ganache";
+import "@nomiclabs/hardhat-etherscan";
 import { HardhatUserConfig, task } from "hardhat/config";
 import type { HttpNetworkUserConfig } from "hardhat/types";
-import "@nomiclabs/hardhat-etherscan";
-import "@nomiclabs/hardhat-ganache";
-import "@nomiclabs/hardhat-waffle";
-import 'hardhat-contract-sizer';
-import "hardhat-gas-reporter";
-import 'hardhat-abi-exporter';
-import "@typechain/hardhat";
-import "solidity-coverage";
-import 'hardhat-watcher';
-import 'hardhat-tracer';
-import 'hardhat-deploy';
-
-
 
 dotenv.config();
 
@@ -205,7 +203,16 @@ const config: HardhatUserConfig = {
     only: [':BlueOcean$'],
     spacing: 2,
     pretty: true,
+  },
+  docgen: {
+    path: './docs',
+    clear: true,
+    runOnCompile: false,
+    only:[
+      'contracts/BlueOceanExchange.sol'
+    ]
   }
+  
 };
 
 export default config;

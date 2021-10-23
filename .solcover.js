@@ -1,4 +1,4 @@
 module.exports = {
-  skipFiles: [],
+  skipFiles: ['./test/src/'],
   silent: true,
 }
