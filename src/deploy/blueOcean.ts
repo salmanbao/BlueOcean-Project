@@ -1,5 +1,4 @@
 import { Contract } from '@ethersproject/contracts'
-import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 

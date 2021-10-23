@@ -18,6 +18,7 @@ describe("BlueOcean Exchange", function () {
 
   before(async () => {
     signers = await ethers.getSigners();
+
     hre.tracer.nameTags[await signers[0].getAddress()] = "ADMIN";
     hre.tracer.nameTags[await signers[1].getAddress()] = "USER1";
     hre.tracer.nameTags[await signers[2].getAddress()] = "USER2";
@@ -501,7 +502,7 @@ describe("BlueOcean Exchange", function () {
   })
 
   it("should have correct auth", async function () {
-    expect(await proxyRegistryInstance.callStatic.contracts(exchangeInstance.address)).to.be.equal(true)
+    expect(await proxyRegistryInstance.callStatic.contracts(exchangeInstance.address)).to.be.true
   })
 
   it("should allow approval", async function () {

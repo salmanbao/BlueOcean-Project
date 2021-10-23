@@ -5,6 +5,7 @@ import * as dotenv from "dotenv";
 import { HardhatUserConfig, task } from "hardhat/config";
 import type { HttpNetworkUserConfig } from "hardhat/types";
 import "@nomiclabs/hardhat-etherscan";
+import "@nomiclabs/hardhat-ganache";
 import "@nomiclabs/hardhat-waffle";
 import 'hardhat-contract-sizer';
 import "hardhat-gas-reporter";
@@ -29,6 +30,7 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
   }
 });
 
+
 const argv = yargs.option("network", {
   type: "string",
   default: "hardhat"
@@ -37,7 +39,7 @@ const argv = yargs.option("network", {
   .version(false).argv;
 
 const DEFAULT_MNEMONIC =
-  "candy maple cake sugar pudding cream honey rich smooth crumble sweet treat";
+  "differ valley cliff whale heavy video grocery host nerve anger noodle deny";
 
 const sharedNetworkConfig: HttpNetworkUserConfig = {
   live: true,
@@ -99,8 +101,8 @@ const config: HardhatUserConfig = {
       allowUnlimitedContractSize: true,
       accounts: {
         accountsBalance: "100000000000000000000000000000000000000000",
+        mnemonic: process.env.MNEMONIC || DEFAULT_MNEMONIC
       }
-
     },
     forknet: {
       url: "https://mainnet.infura.io/v3/${process.env.INFURA_KEY}",

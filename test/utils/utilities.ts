@@ -163,12 +163,14 @@ export const matchOrder = async (buy: IOrder, sell: IOrder, value: number, signe
             const sellHash = hashOrder(sell)
 
             let buySignature = await signers.buyer.signMessage(buyHash)
+
             buySignature = buySignature.substr(2)
             const br = '0x' + buySignature.slice(0, 64)
             const bs = '0x' + buySignature.slice(64, 128)
             const bv = 27 + parseInt('0x' + buySignature.slice(128, 130), 16)
 
             let sellSignature = await signers.seller.signMessage(sellHash)
+
             sellSignature = sellSignature.substr(2)
             const sr = '0x' + sellSignature.slice(0, 64)
             const ss = '0x' + sellSignature.slice(64, 128)
@@ -197,6 +199,7 @@ export const matchOrder = async (buy: IOrder, sell: IOrder, value: number, signe
                 buy.staticExtradata,
                 sell.staticExtradata
             )).to.be.equal(buy.basePrice)
+
             await exchangeInstance.connect(signers.buyer).approveOrder_(
                 [buy.exchange, buy.maker, buy.taker, buy.feeRecipient, buy.target, buy.staticTarget, buy.paymentToken],
                 [buy.makerRelayerFee, buy.takerRelayerFee, buy.makerProtocolFee, buy.takerProtocolFee, buy.basePrice, buy.extra, buy.listingTime, buy.expirationTime, buy.salt],
@@ -209,6 +212,7 @@ export const matchOrder = async (buy: IOrder, sell: IOrder, value: number, signe
                 buy.staticExtradata,
                 true
             )
+
             await exchangeInstance.connect(signers.seller).approveOrder_(
                 [sell.exchange, sell.maker, sell.taker, sell.feeRecipient, sell.target, sell.staticTarget, sell.paymentToken],
                 [sell.makerRelayerFee, sell.takerRelayerFee, sell.makerProtocolFee, sell.takerProtocolFee, sell.basePrice, sell.extra, sell.listingTime, sell.expirationTime, sell.salt],
@@ -221,6 +225,7 @@ export const matchOrder = async (buy: IOrder, sell: IOrder, value: number, signe
                 sell.staticExtradata,
                 true
             )
+
             await exchangeInstance.connect(signers.matcher).atomicMatch_(
                 [buy.exchange, buy.maker, buy.taker, buy.feeRecipient, buy.target, buy.staticTarget, buy.paymentToken, sell.exchange, sell.maker, sell.taker, sell.feeRecipient, sell.target, sell.staticTarget, sell.paymentToken],
                 [buy.makerRelayerFee, buy.takerRelayerFee, buy.makerProtocolFee, buy.takerProtocolFee, buy.basePrice, buy.extra, buy.listingTime, buy.expirationTime, buy.salt, sell.makerRelayerFee, sell.takerRelayerFee, sell.makerProtocolFee, sell.takerProtocolFee, sell.basePrice, sell.extra, sell.listingTime, sell.expirationTime, sell.salt],
@@ -235,6 +240,7 @@ export const matchOrder = async (buy: IOrder, sell: IOrder, value: number, signe
                 [br, bs, sr, ss, '0x0000000000000000000000000000000000000000000000000000000000000000'],
                 { value: ethers.utils.parseEther(value.toString()) || 0 }
             )
+
             resolve(true)
         } catch (error) {
             reject(error)
