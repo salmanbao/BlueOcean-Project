@@ -2,7 +2,7 @@ name: test-cases
 on: [push]
 jobs:
   run-test-cases:
-    run-on: ubuntu-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
