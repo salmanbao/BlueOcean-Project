@@ -1,7 +1,6 @@
 import { expect } from "chai";
 import { Contract, BigNumber, Signer } from "ethers";
 import hre, { ethers } from "hardhat";
-import "@nomiclabs/hardhat-ethers";
 import { increaseTime } from "../utils/utilities";
 
 describe("BlueOceanProxyRegistry", function () {

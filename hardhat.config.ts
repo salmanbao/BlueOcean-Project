@@ -1,16 +1,19 @@
+import yargs from "yargs";
+import * as dotenv from "dotenv";
+
+
 import 'hardhat-deploy';
 import 'hardhat-tracer';
 import 'hardhat-watcher';
-import yargs from "yargs";
 import "solidity-coverage";
 import "@typechain/hardhat";
 import 'hardhat-abi-exporter';
 import "hardhat-gas-reporter";
 import 'hardhat-contract-sizer';
-import * as dotenv from "dotenv";
-import "@nomiclabs/hardhat-web3";
+// import "@nomiclabs/hardhat-web3";
 import "@nomiclabs/hardhat-waffle";
-import "@nomiclabs/hardhat-ganache";
+import "@nomiclabs/hardhat-ethers";
+// import "@nomiclabs/hardhat-ganache";
 import "@nomiclabs/hardhat-etherscan";
 import { HardhatUserConfig, task } from "hardhat/config";
 import type { HttpNetworkUserConfig } from "hardhat/types";

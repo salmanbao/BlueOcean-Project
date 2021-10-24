@@ -1,7 +1,7 @@
 import { expect } from "chai";
-import "@nomiclabs/hardhat-ethers";
-import hre, { ethers } from "hardhat";
 import { Contract, BigNumber, Signer } from "ethers";
+import hre, { ethers } from "hardhat";
+
 import { getTime, hashOrder, hashToSign, Identities, makeOrder, matchOrder } from "../utils/utilities";
 
 describe("BlueOcean Exchange", function () {
