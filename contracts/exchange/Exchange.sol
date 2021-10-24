@@ -173,10 +173,6 @@ contract Exchange is ExchangeCore {
             );
     }
 
-    /**
-     * @dev 
-     */
-
     /// @notice This function will help to validate order parameters.
     /// @dev Call validateOrderParameters - Solidity ABI encoding limitation workaround, hopefully temporary.
     /// @param addrs addresses for making Order struct in a single array @see Order strcut
@@ -573,9 +569,19 @@ contract Exchange is ExchangeCore {
         return calculateMatchPrice(buy, sell);
     }
 
-    /**
-     * @dev Call atomicMatch - Solidity ABI encoding limitation workaround, hopefully temporary.
-     */
+    /// @notice Match order and perform atomic transaction to transfer asset and cost between seller and buyer.
+    /// @dev Call atomicMatch - Solidity ABI encoding limitation workaround, hopefully temporary.
+    /// @param addrs addresses for making Orders struct in a single array @see Order strcut
+    /// @param uints all uints in a sigle array required for making Orders struct @see Order strcut
+    /// @param feeMethodsSidesKindsHowToCalls  Buy Order (feeMethod[0], Side[1], SaleKind[2] HowToCall[3]) Sell Order (feeMethod[4], Side[5], SaleKind[6] HowToCall[7])
+    /// @param calldataBuy Buy-side order calldata
+    /// @param calldataSell Sell-side order calldata
+    /// @param replacementPatternBuy Buy-side order calldata replacement mask
+    /// @param replacementPatternSell Sell-side order calldata replacement mask
+    /// @param staticExtradataBuy Static call extra buy data.
+    /// @param staticExtradataSell call extra sell data.
+    /// @param vs vs[0] buy side v parameter , vs[1] sell side v parameter
+    /// @param rssMetadata rssMetadata[0:1] buy r & s parameters, rssMetadata[2:3] sell r & s parameters , rssMetadata[4] asset metadata
     function atomicMatch_(
         address[14] addrs,
         uint256[18] uints,

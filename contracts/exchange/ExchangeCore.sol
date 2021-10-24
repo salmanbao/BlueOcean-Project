@@ -124,7 +124,7 @@ contract ExchangeCore is ReentrancyGuarded, Ownable {
         address target;
         /* HowToCall. */
         AuthenticatedProxy.HowToCall howToCall;
-        /* Calldata. */
+        /* Calldata , encoded form of function*/
         bytes calldata;
         /* Calldata replacement pattern, or an empty byte array for no replacement. */
         bytes replacementPattern;
@@ -149,10 +149,10 @@ contract ExchangeCore is ReentrancyGuarded, Ownable {
     event Refund(address indexed account, uint256 amount);
     event ProtocolFee(
         address indexed account,
-         uint256 fee,
-          address currency,
-          FeeRecipientType recipientType
-          );
+        uint256 fee,
+        address currency,
+        FeeRecipientType recipientType
+    );
 
     event OrderApprovedPartOne(
         bytes32 indexed hash,
@@ -967,6 +967,7 @@ contract ExchangeCore is ReentrancyGuarded, Ownable {
         require(ordersCanMatch(buy, sell));
 
         /* Target must exist (prevent malicious selfdestructs just prior to order settlement). */
+        /* Target will the OwnableDelegateProxy smart contract instance address */
         uint256 size;
         address target = sell.target;
         assembly {

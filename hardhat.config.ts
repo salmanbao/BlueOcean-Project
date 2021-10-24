@@ -10,10 +10,8 @@ import "@typechain/hardhat";
 import 'hardhat-abi-exporter';
 import "hardhat-gas-reporter";
 import 'hardhat-contract-sizer';
-// import "@nomiclabs/hardhat-web3";
 import "@nomiclabs/hardhat-waffle";
 import "@nomiclabs/hardhat-ethers";
-// import "@nomiclabs/hardhat-ganache";
 import "@nomiclabs/hardhat-etherscan";
 import { HardhatUserConfig, task } from "hardhat/config";
 import type { HttpNetworkUserConfig } from "hardhat/types";
@@ -84,6 +82,15 @@ const config: HardhatUserConfig = {
         settings: {
           optimizer: {
             runs: 200
+          }
+        }
+      },
+      {
+        version: "0.8.2",
+        settings: {
+          optimizer: {
+            runs: 200,
+            enabled: true
           }
         }
       }
@@ -159,7 +166,7 @@ const config: HardhatUserConfig = {
       tasks: [{
         command: 'test',
         params: {
-          logs: true, noCompile: true,
+          logs: true, noCompile: false,
           testFiles: [
             "./test/src/BlueOceanExchange.spec.ts",
             "./test/src/BlueOceanProxyRegistry.spec.ts",

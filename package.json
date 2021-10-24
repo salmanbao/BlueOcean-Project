@@ -23,17 +23,25 @@
     "fmt:sol": "prettier 'contracts/**/*.sol' -w",
     "size": "hardhat size-contracts --show-stack-traces",
     "coverage": "hardhat coverage --testfiles ./test/src",
-    "verify:network": "hardhat verify --network <contract-address>"
+    "verify:network": "hardhat verify --network <contract-address>",
+    "docs:init": "node_modules/.bin/doxity init --target 'doxity' --src 'contracts/*' --dir 'pages' --out './docs'",
+    "docs:compile": "node_modules/.bin/doxity compile",
+    "docs:develop": "node_modules/.bin/doxity develop",
+    "docs:publish": "node_modules/.bin/doxity publish",
+    "docs:build": "node_modules/.bin/doxity build",
+    "doc": "scripts/doc.sh"
   },
   "repository": {
     "type": "git"
   },
   "dependencies": {
+    "@digix/doxity-solc": "^0.6.1",
     "@types/yargs": "^15.0.10",
     "argv": "^0.0.2",
     "axios": "^0.21.1",
     "bn.js": "^5.1.1",
     "dotenv": "^8.2.0",
+    "solc": "0.4.23",
     "web3": "^1.6.0",
     "yargs": "^16.1.1"
   },
@@ -82,6 +90,7 @@
     "solhint": "^3.3.6",
     "solhint-plugin-prettier": "^0.0.5",
     "solidity-coverage": "^0.7.13",
+    "truffle": "^4.1.3",
     "ts-node": "^10.1.0",
     "typechain": "^5.1.2",
     "typescript": "^4.3.5"

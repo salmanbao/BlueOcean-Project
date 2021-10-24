@@ -65,7 +65,7 @@ describe("BlueOceanProxyRegistry", function () {
 
     it("should allow proxy update", async function () {
         const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
-        const OwnabledDelegateProxy = await ethers.getContractFactory("OwnableDelegateProxy", signers[0]);
+        const OwnabledDelegateProxy = await ethers.getContractFactory("contracts/registry/OwnableDelegateProxy.sol:OwnableDelegateProxy", signers[0]);
         ownabledDelegateProxyInstance = OwnabledDelegateProxy.attach(proxy)
         await ownabledDelegateProxyInstance.connect(signers[0]).upgradeTo(proxyRegistryInstance.address)
         const implementation = await proxyRegistryInstance.callStatic.delegateProxyImplementation()
@@ -75,14 +75,14 @@ describe("BlueOceanProxyRegistry", function () {
     it("should not allow proxy upgrade to same implementation", async function () {
         const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
         const implementation = await proxyRegistryInstance.callStatic.delegateProxyImplementation()
-        const OwnabledDelegateProxy = await ethers.getContractFactory("OwnableDelegateProxy", signers[0]);
+        const OwnabledDelegateProxy = await ethers.getContractFactory("contracts/registry/OwnableDelegateProxy.sol:OwnableDelegateProxy", signers[0]);
         ownabledDelegateProxyInstance = OwnabledDelegateProxy.attach(proxy)
         await expect(ownabledDelegateProxyInstance.connect(signers[0]).upgradeTo(implementation)).to.be.reverted
     })
 
     it("should allow upgradeAndCall", async function () {
         const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
-        const OwnabledDelegateProxy = await ethers.getContractFactory("OwnableDelegateProxy", signers[0]);
+        const OwnabledDelegateProxy = await ethers.getContractFactory("contracts/registry/OwnableDelegateProxy.sol:OwnableDelegateProxy", signers[0]);
         const AuthenticatedProxy = await ethers.getContractFactory("AuthenticatedProxy", signers[0])
         ownabledDelegateProxyInstance = OwnabledDelegateProxy.attach(proxy)
         await ownabledDelegateProxyInstance.connect(signers[0]).upgradeTo(proxyRegistryInstance.address)
@@ -97,14 +97,14 @@ describe("BlueOceanProxyRegistry", function () {
 
     it("should return proxy type", async function () {
         const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
-        const OwnabledDelegateProxy = await ethers.getContractFactory("OwnableDelegateProxy", signers[0]);
+        const OwnabledDelegateProxy = await ethers.getContractFactory("contracts/registry/OwnableDelegateProxy.sol:OwnableDelegateProxy", signers[0]);
         ownabledDelegateProxyInstance = OwnabledDelegateProxy.attach(proxy)
         expect(await ownabledDelegateProxyInstance.callStatic.proxyType()).to.be.equal(2)
     })
 
     it("should allow ownership transfer", async function () {
         const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
-        const OwnabledDelegateProxy = await ethers.getContractFactory("OwnableDelegateProxy", signers[0]);
+        const OwnabledDelegateProxy = await ethers.getContractFactory("contracts/registry/OwnableDelegateProxy.sol:OwnableDelegateProxy", signers[0]);
         ownabledDelegateProxyInstance = OwnabledDelegateProxy.attach(proxy)
         await ownabledDelegateProxyInstance.connect(signers[0]).transferProxyOwnership(await signers[1].getAddress())
         expect(await ownabledDelegateProxyInstance.callStatic.proxyOwner()).to.be.equal(await signers[1].getAddress())
@@ -114,14 +114,14 @@ describe("BlueOceanProxyRegistry", function () {
 
     it("should not allow proxy update from another account", async function () {
         const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
-        const OwnabledDelegateProxy = await ethers.getContractFactory("OwnableDelegateProxy", signers[0]);
+        const OwnabledDelegateProxy = await ethers.getContractFactory("contracts/registry/OwnableDelegateProxy.sol:OwnableDelegateProxy", signers[0]);
         ownabledDelegateProxyInstance = OwnabledDelegateProxy.attach(proxy)
         await expect(ownabledDelegateProxyInstance.connect(signers[1]).upgradeTo(proxyRegistryInstance.address)).to.be.reverted
     })
 
     it("should not allow proxy transfer to a nonexistent account", async function () {
         const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
-        const OwnabledDelegateProxy = await ethers.getContractFactory("OwnableDelegateProxy", signers[0]);
+        const OwnabledDelegateProxy = await ethers.getContractFactory("contracts/registry/OwnableDelegateProxy.sol:OwnableDelegateProxy", signers[0]);
         ownabledDelegateProxyInstance = OwnabledDelegateProxy.attach(proxy)
         await expect(ownabledDelegateProxyInstance.connect(signers[0]).
             transferProxyOwnership('0x0000000000000000000000000000000000000000')).to.be.reverted
