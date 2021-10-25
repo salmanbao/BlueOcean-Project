@@ -4,18 +4,6 @@ import "@nomiclabs/hardhat-ethers";
 import { Identities, makeOrder, matchOrder } from "../../test/utils/utilities";
 
 
-/*
-                                fun-sig                                                                                                                                                                                                     nft-id
-calldataBuy                     0x23b872dd-000000000000000000000000-0000000000000000000000000000000000000000-000000000000000000000000-ca84668b4e44b66a548c4554117899c16022f337-000000000000000000000000000000000000000000000000000000000000-14ed
-calldataSell	                0x23b872dd-000000000000000000000000-176431cb0e3627376c4f0dca7c7538c6ddb2d321-000000000000000000000000-0000000000000000000000000000000000000000-000000000000000000000000000000000000000000000000000000000000-14ed
-replacementPatternBuy	        0x00000000-ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff-0000000000000000000000000000000000000000000000000000000000000000-0000000000000000000000000000000000000000000000000000000000000000
-replacementPatternSell	        0x00000000-0000000000000000000000000000000000000000000000000000000000000000-ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff-0000000000000000000000000000000000000000000000000000000000000000
-
-*/
-
-// 0xf242432a
-
-
 async function main() {
     const signers: Signer[] = await ethers.getSigners()
     const TestToken = await ethers.getContractFactory("TestToken", signers[0]);
