@@ -28,11 +28,12 @@ npx solhint 'contracts/**/*.sol' --fix
 # BlueOcean Smart Contract Addresses on Rinkeby
 
 ```
-TestToken                   => 0x9B23972e96549e23D23e967CC3F15e5f6Ed77458
+TestToken                   => 0x0B1201b813Bf6CE2125d76aC74475accfF943C0E
 TestStatic                  => 0x86157fa3f01180C5E7E9921D3fd56492F9baf7F5
-BlueOceanProxyRegistry      => 0x8A56411Dd68FB00b4EA8A93A966Cb5Ba2e537F3c
-BlueOceanTokenTransferProxy => 0x659d81Fd7113C461805131ceA48323c14d9cD5cF
-BlueOceanExchange           => 0xb6104Ab14f23D5E9950b56Bf999655e851Eb91c1
+BlueOceanNFT                => 0xB57E0073887062fC1741B9D206346cc8E8F46f8F
+BlueOceanProxyRegistry      => 0x53d29D539f31e45526bBBEEEB7830C421F12b701
+BlueOceanTokenTransferProxy => 0x8977CE6289CBE89dCe50ab49d826519500641b6D
+BlueOceanExchange           => 0xBD313085Cc36c935F1970b772933A3a9F1f0f503
 
 ```
 

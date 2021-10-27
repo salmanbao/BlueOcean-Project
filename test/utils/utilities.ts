@@ -53,7 +53,7 @@ export const hashOrder = (order: IOrder) => {
         [order.exchange, order.maker, order.taker,
         order.makerRelayerFee,
         order.takerRelayerFee,
-        order.takerProtocolFee,
+        order.makerProtocolFee,
         order.takerProtocolFee,
         order.feeRecipient, order.feeMethod,
         order.side, order.saleKind, order.target,
@@ -81,7 +81,7 @@ export const hashToSign = (order: IOrder) => {
         [order.exchange, order.maker, order.taker,
         BigNumber.from(order.makerRelayerFee),
         BigNumber.from(order.takerRelayerFee),
-        BigNumber.from(order.takerProtocolFee),
+        BigNumber.from(order.makerProtocolFee),
         BigNumber.from(order.takerProtocolFee),
         order.feeRecipient, order.feeMethod,
         order.side, order.saleKind, order.target,
@@ -107,23 +107,23 @@ export const makeOrder = (exchange: string, isMaker: boolean, proxy: string, sig
     maker: signer,
     /* Order taker account address */
     taker: '0x0000000000000000000000000000000000000000',
-    /* Maker relayer fee of the order, deducted from maker order (ETH/TOKEN), unused for taker order. (TBD by platform) */
+    /* Maker relayer fee of the order, deducted from maker side (TOKEN), unused for taker order. (TBD by platform) */
     makerRelayerFee: 0,
-    /* Taker relayer fee of the order, deducted from taker order (ETH/TOKEN), or maximum taker fee for a taker order. (TBD by platform) */
+    /* Taker relayer fee of the order, deducted from maker side (TOKEN), or maximum taker fee for a taker order. (TBD by platform) */
     takerRelayerFee: 0,
     /* Maker protocol fee of the order, unused for taker order. (TBD by platform) */
     makerProtocolFee: 0,
     /* Taker protocol fee of the order, or maximum taker fee for a taker order. */
     takerProtocolFee: 0,
     /* Order fee recipient or zero address for taker order. */
-    feeRecipient: isMaker ? signer : '0x0000000000000000000000000000000000000000',
-    /* Fee method (protocol token or split fee). */
+    feeRecipient: isMaker ? "0x7173002fA5E8Dd0F7eaFAD7Faa5Ad9ec3B86D9B9" : '0x0000000000000000000000000000000000000000',
+    /* Fee method (protocol token or payment token). */
     feeMethod: 0,
     /* Side (buy/sell). */
     side: 0,
     /* Kind of sale. (FixedPrice, DutchAuction) */
     saleKind: 0,
-    /* Target. address of OwnableDelegateProxy smart contract */
+    /* Target. address of smart contract on which calldata will be called */
     target: proxy,
     /* HowToCall. (Call, DelegateCall) */
     howToCall: 0,

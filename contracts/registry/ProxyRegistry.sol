@@ -48,7 +48,7 @@ contract ProxyRegistry is Ownable {
     }
 
     /**
-     * End the process to nable access for specified contract after delay period has passed.
+     * End the process to enable access for specified contract after delay period has passed.
      *
      * @dev ProxyRegistry owner only
      * @param addr Address to which to grant permissions
@@ -78,8 +78,8 @@ contract ProxyRegistry is Ownable {
     /**
      * Register a proxy contract with this registry
      *
-     * @dev Must be called by the user which the proxy is for, creates a new AuthenticatedProxy
-     * @return New AuthenticatedProxy contract
+     * @dev Must be called by the user which the proxy is for, creates a new OwnableDelegateProxy
+     * @return New OwnableDelegateProxy contract
      */
     function registerProxy()
         public

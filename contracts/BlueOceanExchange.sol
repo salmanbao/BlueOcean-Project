@@ -24,7 +24,7 @@ contract BlueOceanExchange is Exchange {
 
     /**
      * @dev Initialize a BlueOceanExchange instance
-     * @param registryAddress Address of theProxyRegistry instance which this Exchange instance will use
+     * @param registryAddress Address of the ProxyRegistry instance which this Exchange instance will use
      * @param tokenTransferProxyAddress Address of the TokenTransferProxy instance
      * @param tokenAddress Address of the token used in exchange
      * @param protocolFeeAddress Address of the account to which protocol fee will go

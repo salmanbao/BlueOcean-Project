@@ -73,7 +73,8 @@ const config: HardhatUserConfig = {
         version: "0.4.23",
         settings: {
           optimizer: {
-            runs: 200
+            runs: 200,
+            enabled: true
           }
         }
       },
@@ -81,7 +82,8 @@ const config: HardhatUserConfig = {
         version: "0.8.4",
         settings: {
           optimizer: {
-            runs: 200
+            runs: 200,
+            enabled:true
           }
         }
       },
@@ -116,7 +118,6 @@ const config: HardhatUserConfig = {
       ...sharedNetworkConfig,
       url: `https://rinkeby.infura.io/v3/${process.env.INFURA_KEY}`,
       chainId: 4,
-
     },
     ropsten: {
       ...sharedNetworkConfig,
@@ -142,6 +143,11 @@ const config: HardhatUserConfig = {
       ...sharedNetworkConfig,
       url: "https://data-seed-prebsc-1-s2.binance.org:8545/",
       chainId: 97,
+    },
+    pulsechain: {
+      ...sharedNetworkConfig,
+      url: "https://rpc.testnet.pulsechain.com",
+      chainId: 940,
     },
   },
   mocha: {

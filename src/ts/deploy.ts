@@ -6,6 +6,7 @@ export const contractNames = {
   TestDAO: 'TestDAO',
   TestToken: 'TestToken',
   TestStatic: 'TestStatic',
+  BlueOceanNFT:"BlueOceanNFT",
   BlueOceanDAO: 'BlueOceanDAO',
   BlueOceanToken: 'BlueOceanToken',
   BlueOceanDAOProxy: 'BlueOceanDAOProxy',

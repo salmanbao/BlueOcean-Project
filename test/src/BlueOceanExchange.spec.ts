@@ -510,7 +510,11 @@ describe("BlueOcean Exchange", function () {
   })
 
   it("should allow approval", async function () {
-    await testTokenInstance.approve(tokenTransferProxyInstance.address, 10000000000)
+    await testTokenInstance.connect(signers[0]).approve(tokenTransferProxyInstance.address, 10000000000)
+    await testTokenInstance.connect(signers[4]).approve(tokenTransferProxyInstance.address, 10000000000)
+    await testTokenInstance.connect(signers[5]).approve(tokenTransferProxyInstance.address, 10000000000)
+    await testTokenInstance.connect(signers[6]).approve(tokenTransferProxyInstance.address, 10000000000)
+    await testTokenInstance.connect(signers[7]).approve(tokenTransferProxyInstance.address, 10000000000)
   })
 
   it("should allow simple order matching", async function () {
@@ -731,7 +735,11 @@ describe("BlueOcean Exchange", function () {
       buyer: signers[4],
       seller: signers[5]
     }
+    console.log(await testTokenInstance.callStatic.balanceOf(await signers[6].getAddress() ) )
+    console.log(await testTokenInstance.callStatic.balanceOf(await signers[7].getAddress() ) )
     await matchOrder(buy, sell, 0, identities, exchangeInstance)
+    console.log(await testTokenInstance.callStatic.balanceOf(await signers[6].getAddress() ) )
+    console.log(await testTokenInstance.callStatic.balanceOf(await signers[7].getAddress() ) )
   })
 
   it("users should have enough tokens and approvals", async function () {
@@ -891,7 +899,7 @@ describe("BlueOcean Exchange", function () {
   it("should allow simple order matching, second fee method, all fees, swapped maker/taker with NFT", async function () {
 
     const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
-    
+
     const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[6].getAddress());
     const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[7].getAddress());
 
@@ -907,7 +915,7 @@ describe("BlueOcean Exchange", function () {
     sell.basePrice = 10000
 
     sell.makerProtocolFee = 100
-    buy.makerProtocolFee =
+    buy.makerProtocolFee = 100
 
       sell.makerRelayerFee = 100
     buy.makerRelayerFee = 100
@@ -922,20 +930,20 @@ describe("BlueOcean Exchange", function () {
     sell.paymentToken = testTokenInstance.address
 
     buy.calldata = nftInstance.interface.encodeFunctionData("safeTransferFrom(address,address,uint256)", [
-        "0x0000000000000000000000000000000000000000",
-        await signers[6].getAddress(),
-        1,
+      "0x0000000000000000000000000000000000000000",
+      await signers[6].getAddress(),
+      1,
     ])
 
     sell.calldata = nftInstance.interface.encodeFunctionData("safeTransferFrom(address,address,uint256)", [
-        await signers[7].getAddress(),
-        "0x0000000000000000000000000000000000000000",
-        1
+      await signers[7].getAddress(),
+      "0x0000000000000000000000000000000000000000",
+      1
     ])
     sell.target = nftInstance.address
     buy.target = nftInstance.address
 
-     buy.replacementPattern = "0x00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    buy.replacementPattern = "0x00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
     sell.replacementPattern = "0x000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000"
 
     const identities: Identities = {
@@ -944,6 +952,49 @@ describe("BlueOcean Exchange", function () {
       seller: signers[7]
     }
     await matchOrder(buy, sell, 0, identities, exchangeInstance)
+  })
+
+  it("should allow simple order matching, using ETH, without any fees with NFT", async function () {
+
+    const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
+
+    const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[6].getAddress());
+    const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[7].getAddress());
+
+    await nftInstance.connect(signers[0]).mintTo(await signers[7].getAddress())
+    await nftInstance.connect(signers[7]).setApprovalForAll(proxy, true);
+
+    sell.side = 1
+
+    buy.basePrice = 10e9
+    sell.basePrice = 10e9
+
+    buy.paymentToken = '0x0000000000000000000000000000000000000000'
+    sell.paymentToken = '0x0000000000000000000000000000000000000000'
+
+    buy.calldata = nftInstance.interface.encodeFunctionData("safeTransferFrom(address,address,uint256)", [
+      "0x0000000000000000000000000000000000000000",
+      await signers[6].getAddress(),
+      2,
+    ])
+
+    sell.calldata = nftInstance.interface.encodeFunctionData("safeTransferFrom(address,address,uint256)", [
+      await signers[7].getAddress(),
+      "0x0000000000000000000000000000000000000000",
+      2
+    ])
+    sell.target = nftInstance.address
+    buy.target = nftInstance.address
+
+    buy.replacementPattern = "0x00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    sell.replacementPattern = "0x000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000"
+
+    const identities: Identities = {
+      matcher: signers[6],
+      buyer: signers[6],
+      seller: signers[7]
+    }
+    await matchOrder(buy, sell, 0.0001, identities, exchangeInstance)
   })
 
   it("should not allow order matching twice", async function () {

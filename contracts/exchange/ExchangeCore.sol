@@ -134,7 +134,7 @@ contract ExchangeCore is ReentrancyGuarded, Ownable {
         bytes staticExtradata;
         /* Token used to pay for the order, or the zero-address as a sentinel value for Ether. */
         address paymentToken;
-        /* Base price of the order (in paymentTokens). */
+        /* Base price of the order (in paymentToken). */
         uint256 basePrice;
         /* Auction extra parameter - minimum bid increment for English auctions, starting/ending price difference. */
         uint256 extra;
@@ -632,12 +632,12 @@ contract ExchangeCore is ReentrancyGuarded, Ownable {
                 require(sell.takerProtocolFee <= buy.takerProtocolFee);
 
                 /* Maker fees are deducted from the token amount that the maker receives. Taker fees are extra tokens that must be paid by the taker. */
-
                 if (sell.makerRelayerFee > 0) {
                     uint256 makerRelayerFee = SafeMath.div(
                         SafeMath.mul(sell.makerRelayerFee, price),
                         INVERSE_BASIS_POINT
                     );
+                    /* Because seller is maker so deduct the makeRelayerFee amount from price the seller will receive */
                     if (sell.paymentToken == address(0)) {
                         receiveAmount = SafeMath.sub(
                             receiveAmount,
@@ -671,6 +671,8 @@ contract ExchangeCore is ReentrancyGuarded, Ownable {
                         SafeMath.mul(sell.takerRelayerFee, price),
                         INVERSE_BASIS_POINT
                     );
+                    
+                    /* Because seller is maker so subtract the takeRelayerFee amount from required amount to fullfil the order by seller */
                     if (sell.paymentToken == address(0)) {
                         requiredAmount = SafeMath.add(
                             requiredAmount,
@@ -704,6 +706,8 @@ contract ExchangeCore is ReentrancyGuarded, Ownable {
                         SafeMath.mul(sell.makerProtocolFee, price),
                         INVERSE_BASIS_POINT
                     );
+
+                    /* Because seller is maker so deduct the makerProtocolFee amount from price the seller will receive */
                     if (sell.paymentToken == address(0)) {
                         receiveAmount = SafeMath.sub(
                             receiveAmount,
@@ -737,6 +741,8 @@ contract ExchangeCore is ReentrancyGuarded, Ownable {
                         SafeMath.mul(sell.takerProtocolFee, price),
                         INVERSE_BASIS_POINT
                     );
+
+                    /* Because seller is maker so deduct the takerProtocolFee amount from price the seller will receive */
                     if (sell.paymentToken == address(0)) {
                         requiredAmount = SafeMath.add(
                             requiredAmount,
@@ -803,6 +809,12 @@ contract ExchangeCore is ReentrancyGuarded, Ownable {
                         buy.feeRecipient,
                         makerRelayerFee
                     );
+                    emit ProtocolFee(
+                        buy.feeRecipient,
+                        makerRelayerFee,
+                        sell.paymentToken,
+                        FeeRecipientType.Relayer
+                    );
                 }
 
                 if (buy.takerRelayerFee > 0) {
@@ -815,6 +827,12 @@ contract ExchangeCore is ReentrancyGuarded, Ownable {
                         sell.maker,
                         buy.feeRecipient,
                         takerRelayerFee
+                    );
+                    emit ProtocolFee(
+                        buy.feeRecipient,
+                        takerRelayerFee,
+                        sell.paymentToken,
+                        FeeRecipientType.Relayer
                     );
                 }
 
@@ -850,7 +868,7 @@ contract ExchangeCore is ReentrancyGuarded, Ownable {
                     );
                     emit ProtocolFee(
                         protocolFeeRecipient,
-                        makerProtocolFee,
+                        takerProtocolFee,
                         sell.paymentToken,
                         FeeRecipientType.Protocol
                     );

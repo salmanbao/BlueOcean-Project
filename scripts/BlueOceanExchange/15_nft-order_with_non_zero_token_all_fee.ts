@@ -6,53 +6,55 @@ import { Identities, makeOrder, matchOrder } from "../../test/utils/utilities";
 
 async function main() {
     const signers: Signer[] = await ethers.getSigners()
-    const TestToken = await ethers.getContractFactory("TestToken", signers[0]);
-    const BlueOceanNFT = await ethers.getContractFactory("BlueOceanNFT", signers[0]);
-    const Exchange = await ethers.getContractFactory("BlueOceanExchange", signers[0]);
-    const ProxyRegistry = await ethers.getContractFactory("BlueOceanProxyRegistry", signers[0]);
+    const TestToken = await ethers.getContractFactory("TestToken", signers[1]);
+    const BlueOceanNFT = await ethers.getContractFactory("BlueOceanNFT", signers[1]);
+    const Exchange = await ethers.getContractFactory("BlueOceanExchange", signers[1]);
+    const ProxyRegistry = await ethers.getContractFactory("BlueOceanProxyRegistry", signers[1]);
+    const TokenTransferProxy = await ethers.getContractFactory("BlueOceanTokenTransferProxy", signers[1]);
 
-    let nftInstance: Contract = BlueOceanNFT.attach("0x4a3Ae88BE1F675EDa0E29690922eEFc44D967aF8");
-    let exchangeInstance: Contract = Exchange.attach("0xb6104Ab14f23D5E9950b56Bf999655e851Eb91c1");
-    let testTokenInstance: Contract = TestToken.attach("0x9B23972e96549e23D23e967CC3F15e5f6Ed77458");
-    let proxyRegistryInstance: Contract = ProxyRegistry.attach("0x8A56411Dd68FB00b4EA8A93A966Cb5Ba2e537F3c");
+    let nftInstance: Contract = BlueOceanNFT.attach("0xB57E0073887062fC1741B9D206346cc8E8F46f8F");
+    let exchangeInstance: Contract = Exchange.attach("0xBD313085Cc36c935F1970b772933A3a9F1f0f503");
+    let testTokenInstance: Contract = TestToken.attach("0x0B1201b813Bf6CE2125d76aC74475accfF943C0E");
+    let proxyRegistryInstance: Contract = ProxyRegistry.attach("0x53d29D539f31e45526bBBEEEB7830C421F12b701");
+    let tokenTransferProxyInstance: Contract = TokenTransferProxy.attach("0x8977CE6289CBE89dCe50ab49d826519500641b6D");
 
-    const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
+    const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[1].getAddress());
+
+    // await testTokenInstance.connect(signers[1]).transfer(await signers[6].getAddress(), "1000000000000000000000")
+    // await testTokenInstance.connect(signers[1]).transfer(await signers[7].getAddress(), "1000000000000000000000")
+
+    // await testTokenInstance.connect(signers[6]).approve(tokenTransferProxyInstance.address, "1000000000000000000000")
+    // await testTokenInstance.connect(signers[7]).approve(tokenTransferProxyInstance.address, "1000000000000000000000")
 
     const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[6].getAddress());
     const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[7].getAddress());
 
-    // console.log(sellerProxy)
-    /* call SetApprovalForAll for proxy address */
-    // await nftInstance.connect(signers[7]).setApprovalForAll(sellerProxy,true);
+    // /* call SetApprovalForAll for proxy address */
+    // await nftInstance.connect(signers[7]).setApprovalForAll(proxy,true);
 
     sell.side = 1
-    buy.feeMethod = 1
-    sell.feeMethod = 1
-    buy.basePrice = 10003
-    sell.basePrice = 10003
-    sell.makerProtocolFee = 100
-    buy.makerProtocolFee = 200
-    sell.makerRelayerFee = 100
-    buy.makerRelayerFee = 100
-    sell.takerProtocolFee = 100
-    buy.takerProtocolFee = 100
-    sell.takerRelayerFee = 100
-    buy.takerRelayerFee = 100
-    
-    buy.paymentToken = testTokenInstance.address
-    sell.paymentToken = testTokenInstance.address
+
+    buy.basePrice = 10e9
+    sell.basePrice = 10e9
+    buy.makerRelayerFee = 1000
+    sell.makerRelayerFee = 1000
+
+    buy.paymentToken = '0x0000000000000000000000000000000000000000'
+    sell.paymentToken = '0x0000000000000000000000000000000000000000'
+
 
     buy.calldata = nftInstance.interface.encodeFunctionData("safeTransferFrom(address,address,uint256)", [
         "0x0000000000000000000000000000000000000000",
         await signers[6].getAddress(),
-        1,
+        2,
     ])
 
     sell.calldata = nftInstance.interface.encodeFunctionData("safeTransferFrom(address,address,uint256)", [
         await signers[7].getAddress(),
         "0x0000000000000000000000000000000000000000",
-        1
+        2
     ])
+
     sell.target = nftInstance.address
     buy.target = nftInstance.address
 
@@ -66,7 +68,7 @@ async function main() {
         buyer: signers[6],
         seller: signers[7],
     }
-    await matchOrder(buy, sell, 0, identities, exchangeInstance)
+    await matchOrder(buy, sell, 0.000001, identities, exchangeInstance)
 }
 
 main()
