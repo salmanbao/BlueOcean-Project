@@ -20,17 +20,17 @@ async function main() {
 
     const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[1].getAddress());
 
-    // await testTokenInstance.connect(signers[1]).transfer(await signers[6].getAddress(), "1000000000000000000000")
-    // await testTokenInstance.connect(signers[1]).transfer(await signers[7].getAddress(), "1000000000000000000000")
+    await testTokenInstance.connect(signers[1]).transfer(await signers[6].getAddress(), "1000000000000000000000")
+    await testTokenInstance.connect(signers[1]).transfer(await signers[7].getAddress(), "1000000000000000000000")
 
-    // await testTokenInstance.connect(signers[6]).approve(tokenTransferProxyInstance.address, "1000000000000000000000")
-    // await testTokenInstance.connect(signers[7]).approve(tokenTransferProxyInstance.address, "1000000000000000000000")
+    await testTokenInstance.connect(signers[6]).approve(tokenTransferProxyInstance.address, "1000000000000000000000")
+    await testTokenInstance.connect(signers[7]).approve(tokenTransferProxyInstance.address, "1000000000000000000000")
 
     const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[6].getAddress());
     const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[7].getAddress());
 
     // /* call SetApprovalForAll for proxy address */
-    // await nftInstance.connect(signers[7]).setApprovalForAll(proxy,true);
+    await nftInstance.connect(signers[7]).setApprovalForAll(proxy,true);
 
     sell.side = 1
 
