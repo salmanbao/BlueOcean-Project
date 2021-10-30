@@ -26,6 +26,30 @@
     - that is to say, wherever the two (transaction => bool) functions intersect.
 
   Future protocol versions may improve upon this structure in capability or usability according to protocol user feedback demand, with upgrades enacted by the BlueOcean DAO.
+
+  Error codes 
+    
+        "0":"TOKENS_NOT_APPROVED_TO_TokenTransferProxy",
+        "1":"INVALID_ORDER",
+        "2":"NOT_AUTHORIZED",
+        "3":"ORDER_ALREADY_APPROVED",
+        "4":"INVALID_PRICE",
+        "5":"ZERO_ETH_SENT",
+        "6":"SELL-SIDE-ORDER-IS-MAKER: SELL_ORDER_TAKER_RELAYER_FEE_IS_GREATER_THAN_BUY_ORDER_TAKER_RELAYER_FEE",
+        "7":"SELL-SIDE-ORDER-IS-MAKER: SELL_ORDER_TAKER_PROTOCOL_FEE_IS_GREATER_THAN_BUY_ORDER_TAKER_PROTOCOL_FEE",
+        "8":"BUY-SIDE-ORDER-IS-MAKER: BUY_ORDER_TAKER_RELAYER_FEE_IS_GREATER_THAN_SELL_ORDER_TAKER_RELAYER_FEE",
+        "9":"FEE-METHOD-IS-SPLITFEE:PROVIDE-TOKEN-ADDRESS",
+        "10":"TAKER_FEE_SHOULD_LESS_THAN_OR_EQUAL_MAX_FEE_SPECIFIED_BY_SELLER",
+        "11":"ORDER_NOT_MATCHED_BY_BUYER",
+        "12":"INVALID_BUY_ORDER_PARAMS",
+        "13":"INVALID_SELL_ORDER_PARAMS",
+        "14":"ORDER_NOT_MATCHED",
+        "15":"PROXY_NOT_EXIST",
+        "16":"INVALID_DELEGATION_IMPLEMENTATION",
+        "17":"CALL_PROXY:PROXY_ERROR",
+        "18":"STATIC-CALL:BUY_SIDE_ERROR",
+        "19":"STATIC-CALL:SELL_SIDE_ERROR"
+
  
 */
 
@@ -241,7 +265,10 @@ contract ExchangeCore is ReentrancyGuarded, Ownable {
         uint256 amount
     ) internal {
         if (amount > 0) {
-            require(tokenTransferProxy.transferFrom(token, from, to, amount));
+            require(
+                tokenTransferProxy.transferFrom(token, from, to, amount),
+                "0"
+            );
         }
     }
 
@@ -372,7 +399,7 @@ contract ExchangeCore is ReentrancyGuarded, Ownable {
         returns (bytes32)
     {
         bytes32 hash = hashToSign(order);
-        require(validateOrder(hash, order, sig));
+        require(validateOrder(hash, order, sig), "1");
         return hash;
     }
 
@@ -460,13 +487,13 @@ contract ExchangeCore is ReentrancyGuarded, Ownable {
         /* CHECKS */
 
         /* Assert sender is authorized to approve order. */
-        require(msg.sender == order.maker);
+        require(msg.sender == order.maker, "2");
 
         /* Calculate order hash. */
         bytes32 hash = hashToSign(order);
 
         /* Assert order has not already been approved. */
-        require(!approvedOrders[hash]);
+        require(!approvedOrders[hash], "3");
 
         /* EFFECTS */
 
@@ -522,7 +549,7 @@ contract ExchangeCore is ReentrancyGuarded, Ownable {
         bytes32 hash = requireValidOrder(order, sig);
 
         /* Assert sender is authorized to cancel order. */
-        require(msg.sender == order.maker);
+        require(msg.sender == order.maker, "2");
 
         /* EFFECTS */
 
@@ -586,7 +613,7 @@ contract ExchangeCore is ReentrancyGuarded, Ownable {
         );
 
         /* Require price cross. */
-        require(buyPrice >= sellPrice);
+        require(buyPrice >= sellPrice, "4");
 
         /* Maker/taker priority. */
         return sell.feeRecipient != address(0) ? sellPrice : buyPrice;
@@ -603,7 +630,7 @@ contract ExchangeCore is ReentrancyGuarded, Ownable {
     {
         /* Only payable in the special case of unwrapped Ether. */
         if (sell.paymentToken != address(0)) {
-            require(msg.value == 0);
+            require(msg.value == 0, "5");
         }
 
         /* Calculate match price. */
@@ -625,11 +652,11 @@ contract ExchangeCore is ReentrancyGuarded, Ownable {
             /* Sell-side order is maker. */
 
             /* Assert taker fee is less than or equal to maximum fee specified by buyer. */
-            require(sell.takerRelayerFee <= buy.takerRelayerFee);
+            require(sell.takerRelayerFee <= buy.takerRelayerFee, "6");
 
             if (sell.feeMethod == FeeMethod.SplitFee) {
                 /* Assert taker fee is less than or equal to maximum fee specified by buyer. */
-                require(sell.takerProtocolFee <= buy.takerProtocolFee);
+                require(sell.takerProtocolFee <= buy.takerProtocolFee, "7");
 
                 /* Maker fees are deducted from the token amount that the maker receives. Taker fees are extra tokens that must be paid by the taker. */
                 if (sell.makerRelayerFee > 0) {
@@ -671,7 +698,7 @@ contract ExchangeCore is ReentrancyGuarded, Ownable {
                         SafeMath.mul(sell.takerRelayerFee, price),
                         INVERSE_BASIS_POINT
                     );
-                    
+
                     /* Because seller is maker so subtract the takeRelayerFee amount from required amount to fullfil the order by seller */
                     if (sell.paymentToken == address(0)) {
                         requiredAmount = SafeMath.add(
@@ -789,14 +816,14 @@ contract ExchangeCore is ReentrancyGuarded, Ownable {
             /* Buy-side order is maker. */
 
             /* Assert taker fee is less than or equal to maximum fee specified by seller. */
-            require(buy.takerRelayerFee <= sell.takerRelayerFee);
+            require(buy.takerRelayerFee <= sell.takerRelayerFee, "8");
 
             if (sell.feeMethod == FeeMethod.SplitFee) {
                 /* The Exchange does not escrow Ether, so direct Ether can only be used to with sell-side maker / buy-side taker orders. */
-                require(sell.paymentToken != address(0));
+                require(sell.paymentToken != address(0), "9");
 
                 /* Assert taker fee is less than or equal to maximum fee specified by seller. */
-                require(buy.takerProtocolFee <= sell.takerProtocolFee);
+                require(buy.takerProtocolFee <= sell.takerProtocolFee, "10");
 
                 if (buy.makerRelayerFee > 0) {
                     makerRelayerFee = SafeMath.div(
@@ -892,7 +919,7 @@ contract ExchangeCore is ReentrancyGuarded, Ownable {
 
         if (sell.paymentToken == address(0)) {
             /* Special-case Ether, order must be matched by buyer. */
-            require(msg.value >= requiredAmount);
+            require(msg.value >= requiredAmount, "11");
             sell.maker.transfer(receiveAmount);
             /* Allow overshoot for variable-price auctions, refund difference. */
             uint256 diff = SafeMath.sub(msg.value, requiredAmount);
@@ -968,7 +995,7 @@ contract ExchangeCore is ReentrancyGuarded, Ownable {
         /* Ensure buy order validity and calculate hash if necessary. */
         bytes32 buyHash;
         if (buy.maker == msg.sender) {
-            require(validateOrderParameters(buy));
+            require(validateOrderParameters(buy), "12");
         } else {
             buyHash = requireValidOrder(buy, buySig);
         }
@@ -976,13 +1003,13 @@ contract ExchangeCore is ReentrancyGuarded, Ownable {
         /* Ensure sell order validity and calculate hash if necessary. */
         bytes32 sellHash;
         if (sell.maker == msg.sender) {
-            require(validateOrderParameters(sell));
+            require(validateOrderParameters(sell), "13");
         } else {
             sellHash = requireValidOrder(sell, sellSig);
         }
 
         /* Must be matchable. */
-        require(ordersCanMatch(buy, sell));
+        require(ordersCanMatch(buy, sell), "14");
 
         /* Target must exist (prevent malicious selfdestructs just prior to order settlement). */
         /* Target will the OwnableDelegateProxy smart contract instance address */
@@ -1014,11 +1041,12 @@ contract ExchangeCore is ReentrancyGuarded, Ownable {
         OwnableDelegateProxy delegateProxy = registry.proxies(sell.maker);
 
         /* Proxy must exist. */
-        require(delegateProxy != address(0));
+        require(delegateProxy != address(0), "15");
         /* Assert implementation. */
         require(
             delegateProxy.implementation() ==
-                registry.delegateProxyImplementation()
+                registry.delegateProxyImplementation(),
+            "16"
         );
 
         /* Access the passthrough AuthenticatedProxy. */
@@ -1039,14 +1067,19 @@ contract ExchangeCore is ReentrancyGuarded, Ownable {
         uint256 price = executeFundsTransfer(buy, sell);
 
         /* Execute specified call through proxy. */
-        require(proxy.proxy(sell.target, sell.howToCall, sell.calldata));
+        require(proxy.proxy(sell.target, sell.howToCall, sell.calldata), "17");
 
         /* Static calls are intentionally done after the effectful call so they can check resulting state. */
 
         /* Handle buy-side static call if specified. */
         if (buy.staticTarget != address(0)) {
             require(
-                staticCall(buy.staticTarget, sell.calldata, buy.staticExtradata)
+                staticCall(
+                    buy.staticTarget,
+                    sell.calldata,
+                    buy.staticExtradata
+                ),
+                "18"
             );
         }
 
@@ -1057,7 +1090,8 @@ contract ExchangeCore is ReentrancyGuarded, Ownable {
                     sell.staticTarget,
                     sell.calldata,
                     sell.staticExtradata
-                )
+                ),
+                "19"
             );
         }
 

@@ -4,19 +4,19 @@ import "@nomiclabs/hardhat-ethers";
 
 async function main() {
     const signers: Signer[] = await ethers.getSigners()
-    const BlueOceanNFT = await ethers.getContractFactory("BlueOceanNFT", signers[1]);
-    let nftInstance: Contract = BlueOceanNFT.attach("0xB57E0073887062fC1741B9D206346cc8E8F46f8F");
+    const BlueOceanNFT = await ethers.getContractFactory("BlueOceanNFT", signers[0]);
+    let nftInstance: Contract = BlueOceanNFT.attach("0x6fFE0F8cf249b6EEe7E7A2A341A4843c8E08A7AD");
     
-    await nftInstance.connect(signers[1]).mintTo(await signers[7].getAddress())
-    await nftInstance.connect(signers[1]).mintTo(await signers[7].getAddress())
-    await nftInstance.connect(signers[1]).mintTo(await signers[7].getAddress())
-    await nftInstance.connect(signers[1]).mintTo(await signers[7].getAddress())
-    await nftInstance.connect(signers[1]).mintTo(await signers[7].getAddress())
-    await nftInstance.connect(signers[1]).mintTo(await signers[7].getAddress())
-    await nftInstance.connect(signers[1]).mintTo(await signers[7].getAddress())
-    await nftInstance.connect(signers[1]).mintTo(await signers[7].getAddress())
-    await nftInstance.connect(signers[1]).mintTo(await signers[7].getAddress())
-    await nftInstance.connect(signers[1]).mintTo(await signers[7].getAddress())
+    await nftInstance.connect(signers[0]).mintTo(await signers[2].getAddress()) 
+    await nftInstance.connect(signers[0]).mintTo(await signers[2].getAddress())
+    await nftInstance.connect(signers[0]).mintTo(await signers[2].getAddress())
+    await nftInstance.connect(signers[0]).mintTo(await signers[2].getAddress())
+    await nftInstance.connect(signers[0]).mintTo(await signers[2].getAddress())
+    await nftInstance.connect(signers[0]).mintTo(await signers[2].getAddress())
+    await nftInstance.connect(signers[0]).mintTo(await signers[2].getAddress())
+    await nftInstance.connect(signers[0]).mintTo(await signers[2].getAddress())
+    await nftInstance.connect(signers[0]).mintTo(await signers[2].getAddress())
+    await nftInstance.connect(signers[0]).mintTo(await signers[2].getAddress())
 }
 
 main()

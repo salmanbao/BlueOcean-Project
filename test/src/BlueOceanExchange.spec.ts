@@ -56,6 +56,7 @@ describe("BlueOcean Exchange", function () {
     hre.tracer.nameTags[tokenTransferProxyInstance.address] = "TOKEN-TRANSFER";
 
   });
+  
 
   it("should allow simple array replacement", async function () {
     expect(await exchangeInstance.callStatic.guardedArrayReplace('0xff', '0x00', '0xff')).to.be.equal("0x00")

@@ -12,21 +12,21 @@ async function main() {
     const TokenTransferProxy = await ethers.getContractFactory("BlueOceanTokenTransferProxy", signers[0]);
 
 
-    let exchangeInstance: Contract = Exchange.attach("0xb6104Ab14f23D5E9950b56Bf999655e851Eb91c1");
-    let testTokenInstance: Contract = TestToken.attach("0x9B23972e96549e23D23e967CC3F15e5f6Ed77458");
-    let proxyRegistryInstance: Contract = ProxyRegistry.attach("0x8A56411Dd68FB00b4EA8A93A966Cb5Ba2e537F3c");
-    let tokenTransferProxyInstance: Contract = TokenTransferProxy.attach("0x659d81Fd7113C461805131ceA48323c14d9cD5cF")
+    let exchangeInstance: Contract = Exchange.attach("0x835011805Aac8f8deFd7f76c34D52F9b3e0a8Fd4");
+    let testTokenInstance: Contract = TestToken.attach("0x28Cb006De3c242698A883fe0CFA692C7f35bd1bc");
+    let proxyRegistryInstance: Contract = ProxyRegistry.attach("0xd646791900B0EFEcB890F6ECc1C2f466e764E8f8");
+    let tokenTransferProxyInstance: Contract = TokenTransferProxy.attach("0xA8f8B372d6Ea18f97e53e57Aa7735CbF32Da342D")
     const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
 
-    await testTokenInstance.connect(signers[0]).transfer(await signers[6].getAddress(), 100000)
-    await testTokenInstance.connect(signers[0]).transfer(await signers[7].getAddress(), 100000)
+    await testTokenInstance.connect(signers[0]).transfer("0x6e8713CBbcEA00482d758C0E4718bA2d6CDFfCd1", ethers.utils.parseEther("1000"))
+    await testTokenInstance.connect(signers[0]).transfer(await signers[2].getAddress(), ethers.utils.parseEther("1000"))
 
-    await testTokenInstance.connect(signers[6]).approve(tokenTransferProxyInstance.address, 100000)
-    await testTokenInstance.connect(signers[7]).approve(tokenTransferProxyInstance.address, 100000)
+    await testTokenInstance.connect(signers[1]).approve(tokenTransferProxyInstance.address, ethers.utils.parseEther("1000"))
+    await testTokenInstance.connect(signers[2]).approve(tokenTransferProxyInstance.address, ethers.utils.parseEther("1000"))
 
 
-    const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[6].getAddress());
-    const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[7].getAddress());
+    const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[1].getAddress());
+    const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[2].getAddress());
     sell.side = 1
     buy.feeMethod = 1
     sell.feeMethod = 1
@@ -37,9 +37,9 @@ async function main() {
     buy.paymentToken = testTokenInstance.address
     sell.paymentToken = testTokenInstance.address
     const identities: Identities = {
-        matcher: signers[11],
-        buyer: signers[6],
-        seller: signers[7],
+        matcher: signers[1],
+        buyer: signers[1],
+        seller: signers[2],
     }
     await matchOrder(buy, sell, 0, identities, exchangeInstance)
 }

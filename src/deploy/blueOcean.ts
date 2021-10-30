@@ -22,7 +22,7 @@ const deployPowerFanContract: DeployFunction = async function (
   let contracts: IDeployedContracts = {};
   const signers = await hre.ethers.getSigners();
 
-  const testToken = await hre.ethers.getContractFactory(TestToken, signers[1])
+  const testToken = await hre.ethers.getContractFactory(TestToken, signers[0])
   contracts.TestToken = await testToken.deploy()
 
   const testDAO = await hre.ethers.getContractFactory(TestDAO)
@@ -31,32 +31,30 @@ const deployPowerFanContract: DeployFunction = async function (
   const testStatic = await hre.ethers.getContractFactory(TestStatic)
   contracts.TestStatic = await testStatic.deploy()
 
-  const blueOceanDAOProxy = await hre.ethers.getContractFactory(BlueOceanDAOProxy, signers[1])
+  const blueOceanDAOProxy = await hre.ethers.getContractFactory(BlueOceanDAOProxy, signers[0])
   contracts.BlueOceanDAOProxy = await blueOceanDAOProxy.deploy()
 
   const blueOceanAtomicizer = await hre.ethers.getContractFactory(BlueOceanAtomicizer)
   contracts.BlueOceanAtomicizer = await blueOceanAtomicizer.deploy()
 
-  const blueOceanProxyRegistry = await hre.ethers.getContractFactory(BlueOceanProxyRegistry, signers[1])
+  const blueOceanProxyRegistry = await hre.ethers.getContractFactory(BlueOceanProxyRegistry, signers[0])
   contracts.BlueOceanProxyRegistry = await blueOceanProxyRegistry.deploy()
 
-  const blueOceanNFT = await hre.ethers.getContractFactory(BlueOceanNFT, signers[1])
+  const blueOceanNFT = await hre.ethers.getContractFactory(BlueOceanNFT, signers[0])
   contracts.BlueOceanNFT = await blueOceanNFT.deploy(contracts.BlueOceanProxyRegistry.address)
 
-  const blueOceanTokenTransferProxy = await hre.ethers.getContractFactory(BlueOceanTokenTransferProxy, signers[1])
+  const blueOceanTokenTransferProxy = await hre.ethers.getContractFactory(BlueOceanTokenTransferProxy, signers[0])
   contracts.BlueOceanTokenTransferProxy = await blueOceanTokenTransferProxy.deploy(contracts.BlueOceanProxyRegistry.address)
 
-  const blueOceanExchange = await hre.ethers.getContractFactory(BlueOceanExchange, signers[1])
-  contracts.BlueOceanExchange = await blueOceanExchange.deploy(contracts.BlueOceanProxyRegistry.address, contracts.BlueOceanTokenTransferProxy.address, contracts.TestToken.address, await signers[10].getAddress())
+  const blueOceanExchange = await hre.ethers.getContractFactory(BlueOceanExchange, signers[0])
+  contracts.BlueOceanExchange = await blueOceanExchange.deploy(contracts.BlueOceanProxyRegistry.address, contracts.BlueOceanTokenTransferProxy.address, contracts.TestToken.address, await signers[0].getAddress())
 
   console.log("testToken", contracts.TestToken.address)
   console.log("BlueOceanDAOProxy", contracts.BlueOceanDAOProxy.address)
   console.log("BlueOceanProxyRegistry", contracts.BlueOceanProxyRegistry.address)
   console.log("BlueOceanTokenTransferProxy", contracts.BlueOceanTokenTransferProxy.address)
   console.log("BlueOceanExchange", contracts.BlueOceanExchange.address)
-  console.log("BlueOceanNFT", contracts.BlueOceanNFT.address
-  )
-  contracts.BlueOceanProxyRegistry.connect(signers[0]).grantInitialAuthentication(contracts.BlueOceanExchange.address)
+  console.log("BlueOceanNFT", contracts.BlueOceanNFT.address)
 
   try {
     await hre.run('verify', {

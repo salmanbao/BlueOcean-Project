@@ -24,7 +24,7 @@ async function main() {
     exchangeInstance = Exchange.attach("0x835011805Aac8f8deFd7f76c34D52F9b3e0a8Fd4");
     proxyRegistryInstance = ProxyRegistry.attach("0xd646791900B0EFEcB890F6ECc1C2f466e764E8f8");
 
-    await proxyRegistryInstance.connect(signers[0]).grantInitialAuthentication(exchangeInstance.address)
+    console.log(await proxyRegistryInstance.callStatic.contracts(exchangeInstance.address))
 }
 
 main()

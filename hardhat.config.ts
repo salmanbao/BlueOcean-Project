@@ -13,6 +13,7 @@ import 'hardhat-contract-sizer';
 import "@nomiclabs/hardhat-waffle";
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-etherscan";
+// import "@codingsh/hardhat-blockscout";
 import { HardhatUserConfig, task } from "hardhat/config";
 import type { HttpNetworkUserConfig } from "hardhat/types";
 
@@ -36,8 +37,7 @@ const argv = yargs.option("network", {
   .help(false)
   .version(false).argv;
 
-const DEFAULT_MNEMONIC =
-  "differ valley cliff whale heavy video grocery host nerve anger noodle deny";
+const DEFAULT_MNEMONIC:string = process.env.MNEMONIC || "";
 
 const sharedNetworkConfig: HttpNetworkUserConfig = {
   live: true,

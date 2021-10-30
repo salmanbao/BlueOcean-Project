@@ -16,6 +16,7 @@ contract Exchange is ExchangeCore {
     /**
      * @dev Call guardedArrayReplace - library function exposed for testing.
      */
+
     function guardedArrayReplace(
         bytes array,
         bytes desired,
@@ -87,6 +88,32 @@ contract Exchange is ExchangeCore {
 
     /**
      * @dev Call hashOrder - Solidity ABI encoding limitation workaround, hopefully temporary.
+     * @param addrs addresses for making Order struct in a single array @see Order strcut
+     * addrs[0] => exhange address
+     * addrs[1] => maker address
+     * addrs[2] => taker address
+     * addrs[3] => feeRecipient address
+     * addrs[4] => target address
+     * addrs[5] => staticTarget address
+     * addrs[6] => paymentToken address
+     * @param uints all uints in a sigle array required for making Order struct @see Order strcut
+     * uints[0] => makerRelayerFee
+     * uints[1] => takerRelayerFee
+     * uints[2] => makerProtocolFee
+     * uints[3] => takerProtocolFee
+     * uints[4] => basePrice
+     * uints[5] => auction extra parameter
+     * uints[6] => listingTime
+     * uints[7] => expirationTime
+     * uints[8] => salt
+     * @param feeMethod Fee method (protocol token or split fee))
+     * @param side It tells about side (BUY/SELL)
+     * @param saleKind It tells about sale kind (FixedPrice / Dutch Auction)
+     * @param howToCall HowToCall (CALL/DELEGATECALL)
+     * @param calldata Calldata.
+     * @param replacementPattern Calldata replacement pattern, or an empty byte array for no replacement.
+     * @param staticExtradata Static call extra data.
+     * @return hash of order
      */
     function hashOrder_(
         address[7] addrs,
@@ -131,6 +158,32 @@ contract Exchange is ExchangeCore {
 
     /**
      * @dev Call hashToSign - Solidity ABI encoding limitation workaround, hopefully temporary.
+     * @param addrs addresses for making Order struct in a single array @see Order strcut
+     * addrs[0] => exhange address
+     * addrs[1] => maker address
+     * addrs[2] => taker address
+     * addrs[3] => feeRecipient address
+     * addrs[4] => target address
+     * addrs[5] => staticTarget address
+     * addrs[6] => paymentToken address
+     * @param uints all uints in a sigle array required for making Order struct @see Order strcut
+     * uints[0] => makerRelayerFee
+     * uints[1] => takerRelayerFee
+     * uints[2] => makerProtocolFee
+     * uints[3] => takerProtocolFee
+     * uints[4] => basePrice
+     * uints[5] => auction extra parameter
+     * uints[6] => listingTime
+     * uints[7] => expirationTime
+     * uints[8] => salt
+     * @param feeMethod Fee method (protocol token or split fee))
+     * @param side It tells about side (BUY/SELL)
+     * @param saleKind It tells about sale kind (FixedPrice / Dutch Auction)
+     * @param howToCall HowToCall (CALL/DELEGATECALL)
+     * @param calldata Calldata.
+     * @param replacementPattern Calldata replacement pattern, or an empty byte array for no replacement.
+     * @param staticExtradata Static call extra data.
+     * @return signed hash
      */
     function hashToSign_(
         address[7] addrs,
@@ -173,18 +226,36 @@ contract Exchange is ExchangeCore {
             );
     }
 
-    /// @notice This function will help to validate order parameters.
-    /// @dev Call validateOrderParameters - Solidity ABI encoding limitation workaround, hopefully temporary.
-    /// @param addrs addresses for making Order struct in a single array @see Order strcut
-    /// @param uints all uints in a sigle array required for making Order struct @see Order strcut
-    /// @param feeMethod Fee method (protocol token or split fee))
-    /// @param side It tells about side (BUY/SELL)
-    /// @param saleKind It tells about sale kind (FixedPrice / Dutch Auction)
-    /// @param howToCall HowToCall (CALL/DELEGATECALL)
-    /// @param calldata Calldata.
-    /// @param replacementPattern Calldata replacement pattern, or an empty byte array for no replacement.
-    /// @param staticExtradata Static call extra data.
-    /// @return price return the boolean according to the parameters
+    /**
+     * @notice This function will help to validate order parameters.
+     * @dev Call validateOrderParameters - Solidity ABI encoding limitation workaround, hopefully temporary.
+     * @param addrs addresses for making Order struct in a single array @see Order strcut
+     * addrs[0] => exhange address
+     * addrs[1] => maker address
+     * addrs[2] => taker address
+     * addrs[3] => feeRecipient address
+     * addrs[4] => target address
+     * addrs[5] => staticTarget address
+     * addrs[6] => paymentToken address
+     * @param uints all uints in a sigle array required for making Order struct @see Order strcut
+     * uints[0] => makerRelayerFee
+     * uints[1] => takerRelayerFee
+     * uints[2] => makerProtocolFee
+     * uints[3] => takerProtocolFee
+     * uints[4] => basePrice
+     * uints[5] => auction extra parameter
+     * uints[6] => listingTime
+     * uints[7] => expirationTime
+     * uints[8] => salt
+     * @param feeMethod Fee method (protocol token or split fee))
+     * @param side It tells about side (BUY/SELL)
+     * @param saleKind It tells about sale kind (FixedPrice / Dutch Auction)
+     * @param howToCall HowToCall (CALL/DELEGATECALL)
+     * @param calldata Calldata.
+     * @param replacementPattern Calldata replacement pattern, or an empty byte array for no replacement.
+     * @param staticExtradata Static call extra data.
+     * @return price return the boolean according to the parameters
+     */
     function validateOrderParameters_(
         address[7] addrs,
         uint256[9] uints,
@@ -226,6 +297,34 @@ contract Exchange is ExchangeCore {
 
     /**
      * @dev Call validateOrder - Solidity ABI encoding limitation workaround, hopefully temporary.
+     * @param addrs addresses for making Order struct in a single array @see Order strcut
+     * addrs[0] => exhange address
+     * addrs[1] => maker address
+     * addrs[2] => taker address
+     * addrs[3] => feeRecipient address
+     * addrs[4] => target address
+     * addrs[5] => staticTarget address
+     * addrs[6] => paymentToken address
+     * @param uints all uints in a sigle array required for making Order struct @see Order strcut
+     * uints[0] => makerRelayerFee
+     * uints[1] => takerRelayerFee
+     * uints[2] => makerProtocolFee
+     * uints[3] => takerProtocolFee
+     * uints[4] => basePrice
+     * uints[5] => auction extra parameter
+     * uints[6] => listingTime
+     * uints[7] => expirationTime
+     * uints[8] => salt
+     * @param feeMethod Fee method (protocol token or split fee))
+     * @param side It tells about side (BUY/SELL)
+     * @param saleKind It tells about sale kind (FixedPrice / Dutch Auction)
+     * @param howToCall HowToCall (CALL/DELEGATECALL)
+     * @param calldata Calldata.
+     * @param replacementPattern Calldata replacement pattern, or an empty byte array for no replacement.
+     * @param staticExtradata Calldata replacement pattern.
+     * @param v signature parameter
+     * @param r signature parameter.
+     * @param s signature parameter.
      */
     function validateOrder_(
         address[7] addrs,
@@ -271,6 +370,32 @@ contract Exchange is ExchangeCore {
 
     /**
      * @dev Call approveOrder - Solidity ABI encoding limitation workaround, hopefully temporary.
+     * @param addrs addresses for making Order struct in a single array @see Order strcut
+     * addrs[0] => exhange address
+     * addrs[1] => maker address
+     * addrs[2] => taker address
+     * addrs[3] => feeRecipient address
+     * addrs[4] => target address
+     * addrs[5] => staticTarget address
+     * addrs[6] => paymentToken address
+     * @param uints all uints in a sigle array required for making Order struct @see Order strcut
+     * uints[0] => makerRelayerFee
+     * uints[1] => takerRelayerFee
+     * uints[2] => makerProtocolFee
+     * uints[3] => takerProtocolFee
+     * uints[4] => basePrice
+     * uints[5] => auction extra parameter
+     * uints[6] => listingTime
+     * uints[7] => expirationTime
+     * uints[8] => salt
+     * @param feeMethod Fee method (protocol token or split fee))
+     * @param side It tells about side (BUY/SELL)
+     * @param saleKind It tells about sale kind (FixedPrice / Dutch Auction)
+     * @param howToCall HowToCall (CALL/DELEGATECALL)
+     * @param calldata Calldata.
+     * @param replacementPattern Calldata replacement pattern, or an empty byte array for no replacement.
+     * @param staticExtradata Calldata replacement pattern.
+     * @param orderbookInclusionDesired flag for event
      */
     function approveOrder_(
         address[7] addrs,
@@ -314,6 +439,34 @@ contract Exchange is ExchangeCore {
 
     /**
      * @dev Call cancelOrder - Solidity ABI encoding limitation workaround, hopefully temporary.
+     * @param addrs addresses for making Order struct in a single array @see Order strcut
+     * addrs[0] => exhange address
+     * addrs[1] => maker address
+     * addrs[2] => taker address
+     * addrs[3] => feeRecipient address
+     * addrs[4] => target address
+     * addrs[5] => staticTarget address
+     * addrs[6] => paymentToken address
+     * @param uints all uints in a sigle array required for making Order struct @see Order strcut
+     * uints[0] => makerRelayerFee
+     * uints[1] => takerRelayerFee
+     * uints[2] => makerProtocolFee
+     * uints[3] => takerProtocolFee
+     * uints[4] => basePrice
+     * uints[5] => auction extra parameter
+     * uints[6] => listingTime
+     * uints[7] => expirationTime
+     * uints[8] => salt
+     * @param feeMethod Fee method (protocol token or split fee))
+     * @param side It tells about side (BUY/SELL)
+     * @param saleKind It tells about sale kind (FixedPrice / Dutch Auction)
+     * @param howToCall HowToCall (CALL/DELEGATECALL)
+     * @param calldata Calldata.
+     * @param replacementPattern Calldata replacement pattern, or an empty byte array for no replacement.
+     * @param staticExtradata Calldata replacement pattern.
+     * @param v signature parameter
+     * @param r signature parameter.
+     * @param s signature parameter.
      */
     function cancelOrder_(
         address[7] addrs,
@@ -362,6 +515,31 @@ contract Exchange is ExchangeCore {
 
     /**
      * @dev Call calculateCurrentPrice - Solidity ABI encoding limitation workaround, hopefully temporary.
+     * @param addrs addresses for making Order struct in a single array @see Order strcut
+     * addrs[0] => exhange address
+     * addrs[1] => maker address
+     * addrs[2] => taker address
+     * addrs[3] => feeRecipient address
+     * addrs[4] => target address
+     * addrs[5] => staticTarget address
+     * addrs[6] => paymentToken address
+     * @param uints all uints in a sigle array required for making Order struct @see Order strcut
+     * uints[0] => makerRelayerFee
+     * uints[1] => takerRelayerFee
+     * uints[2] => makerProtocolFee
+     * uints[3] => takerProtocolFee
+     * uints[4] => basePrice
+     * uints[5] => auction extra parameter
+     * uints[6] => listingTime
+     * uints[7] => expirationTime
+     * uints[8] => salt
+     * @param feeMethod Fee method (protocol token or split fee))
+     * @param side It tells about side (BUY/SELL)
+     * @param saleKind It tells about sale kind (FixedPrice / Dutch Auction)
+     * @param howToCall HowToCall (CALL/DELEGATECALL)
+     * @param calldata Calldata.
+     * @param replacementPattern Calldata replacement pattern, or an empty byte array for no replacement.
+     * @param staticExtradata Calldata replacement pattern.
      */
     function calculateCurrentPrice_(
         address[7] addrs,
@@ -406,6 +584,62 @@ contract Exchange is ExchangeCore {
 
     /**
      * @dev Call ordersCanMatch - Solidity ABI encoding limitation workaround, hopefully temporary.
+     * @param addrs addresses for making Order struct in a single array @see Order strcut
+     * Buy Order Parameters
+     * addrs[0] => exhange address
+     * addrs[1] => maker address
+     * addrs[2] => taker address
+     * addrs[3] => feeRecipient address
+     * addrs[4] => target address
+     * addrs[5] => staticTarget address
+     * addrs[6] => paymentToken address
+     * Sell Order Parameters
+     * addrs[7] => exchange address
+     * addrs[8] => maker address
+     * addrs[9] => taker address
+     * addrs[10] => feeRecipient address
+     * addrs[11] => target address
+     * addrs[12] => staticTarget address
+     * addrs[13] => paymentToken address
+     * @param uints all uints in a sigle array required for making Order struct @see Order strcut
+     * Buy Order Parameters
+     * uints[0] => makerRelayerFee
+     * uints[1] => takerRelayerFee
+     * uints[2] => makerProtocolFee
+     * uints[3] => takerProtocolFee
+     * uints[4] => basePrice
+     * uints[5] => auction extra parameter
+     * uints[6] => listingTime
+     * uints[7] => expirationTime
+     * uints[8] => salt
+     * Sell Order Parameters
+     * uints[9] => makerRelayerFee
+     * uints[10] => takerRelayerFee
+     * uints[11] => makerProtocolFee
+     * uints[12] => takerProtocolFee
+     * uints[13] => basePrice
+     * uints[14] => auction extra parameter
+     * uints[15] => listingTime
+     * uints[16] => expirationTime
+     * uints[17] => salt
+     * @param feeMethodsSidesKindsHowToCalls list of parameters for feeMethods, side, saleKinds and howToCalls
+     * Buy Order Parameter
+     * feeMethodsSidesKindsHowToCalls[0] => feeMethod
+     * feeMethodsSidesKindsHowToCalls[1] => side
+     * feeMethodsSidesKindsHowToCalls[2] => saleKind
+     * feeMethodsSidesKindsHowToCalls[3] => howToCall
+     * -- Sell Order Parameter
+     * feeMethodsSidesKindsHowToCalls[4] => feeMethod
+     * feeMethodsSidesKindsHowToCalls[5] => side
+     * feeMethodsSidesKindsHowToCalls[6] => saleKind
+     * feeMethodsSidesKindsHowToCalls[7] => howToCall
+     * @param calldataBuy calldata for buy order
+     * @param calldataSell calldata for sell order
+     * @param replacementPatternBuy replacementPattern for buy order
+     * @param replacementPatternSell replacementPattern for sell order
+     * @param staticExtradataBuy   staticExtradata for buy order
+     * @param staticExtradataSell staticExtradata for sell order
+     * @return Whether the orders can be matched
      */
     function ordersCanMatch_(
         address[14] addrs,
@@ -504,6 +738,62 @@ contract Exchange is ExchangeCore {
 
     /**
      * @dev Call calculateMatchPrice - Solidity ABI encoding limitation workaround, hopefully temporary.
+     * @param addrs addresses for making Order struct in a single array @see Order strcut
+     * Buy Order Parameters
+     * addrs[0] => exhange address
+     * addrs[1] => maker address
+     * addrs[2] => taker address
+     * addrs[3] => feeRecipient address
+     * addrs[4] => target address
+     * addrs[5] => staticTarget address
+     * addrs[6] => paymentToken address
+     * Sell Order Parameters
+     * addrs[7] => exchange address
+     * addrs[8] => maker address
+     * addrs[9] => taker address
+     * addrs[10] => feeRecipient address
+     * addrs[11] => target address
+     * addrs[12] => staticTarget address
+     * addrs[13] => paymentToken address
+     * @param uints all uints in a sigle array required for making Order struct @see Order strcut
+     * Buy Order Parameters
+     * uints[0] => makerRelayerFee
+     * uints[1] => takerRelayerFee
+     * uints[2] => makerProtocolFee
+     * uints[3] => takerProtocolFee
+     * uints[4] => basePrice
+     * uints[5] => auction extra parameter
+     * uints[6] => listingTime
+     * uints[7] => expirationTime
+     * uints[8] => salt
+     * Sell Order Parameters
+     * uints[9] => makerRelayerFee
+     * uints[10] => takerRelayerFee
+     * uints[11] => makerProtocolFee
+     * uints[12] => takerProtocolFee
+     * uints[13] => basePrice
+     * uints[14] => auction extra parameter
+     * uints[15] => listingTime
+     * uints[16] => expirationTime
+     * uints[17] => salt
+     * @param feeMethodsSidesKindsHowToCalls list of parameters for feeMethods, side, saleKinds and howToCalls
+     * Buy Order Parameter
+     * feeMethodsSidesKindsHowToCalls[0] => feeMethod
+     * feeMethodsSidesKindsHowToCalls[1] => side
+     * feeMethodsSidesKindsHowToCalls[2] => saleKind
+     * feeMethodsSidesKindsHowToCalls[3] => howToCall
+     * Sell Order Parameter
+     * feeMethodsSidesKindsHowToCalls[4] => feeMethod
+     * feeMethodsSidesKindsHowToCalls[5] => side
+     * feeMethodsSidesKindsHowToCalls[6] => saleKind
+     * feeMethodsSidesKindsHowToCalls[7] => howToCall
+     * @param calldataBuy calldata for buy order
+     * @param calldataSell calldata for sell order
+     * @param replacementPatternBuy replacementPattern for buy order
+     * @param replacementPatternSell replacementPattern for sell order
+     * @param staticExtradataBuy   staticExtradata for buy order
+     * @param staticExtradataSell staticExtradata for sell order
+     * @return match price for two orders
      */
     function calculateMatchPrice_(
         address[14] addrs,
@@ -569,19 +859,76 @@ contract Exchange is ExchangeCore {
         return calculateMatchPrice(buy, sell);
     }
 
-    /// @notice Match order and perform atomic transaction to transfer asset and cost between seller and buyer.
-    /// @dev Call atomicMatch - Solidity ABI encoding limitation workaround, hopefully temporary.
-    /// @param addrs addresses for making Orders struct in a single array @see Order strcut
-    /// @param uints all uints in a sigle array required for making Orders struct @see Order strcut
-    /// @param feeMethodsSidesKindsHowToCalls  Buy Order (feeMethod[0], Side[1], SaleKind[2] HowToCall[3]) Sell Order (feeMethod[4], Side[5], SaleKind[6] HowToCall[7])
-    /// @param calldataBuy Buy-side order calldata
-    /// @param calldataSell Sell-side order calldata
-    /// @param replacementPatternBuy Buy-side order calldata replacement mask
-    /// @param replacementPatternSell Sell-side order calldata replacement mask
-    /// @param staticExtradataBuy Static call extra buy data.
-    /// @param staticExtradataSell call extra sell data.
-    /// @param vs vs[0] buy side v parameter , vs[1] sell side v parameter
-    /// @param rssMetadata rssMetadata[0:1] buy r & s parameters, rssMetadata[2:3] sell r & s parameters , rssMetadata[4] asset metadata
+    /**
+     * @notice Match order and perform atomic transaction to transfer asset and cost between seller and buyer.
+     * @dev Call atomicMatch - Solidity ABI encoding limitation workaround, hopefully temporary.
+     * @param addrs addresses for making Order struct in a single array @see Order strcut
+     * Buy Order Parameters
+     * addrs[0] => exhange address
+     * addrs[1] => maker address
+     * addrs[2] => taker address
+     * addrs[3] => feeRecipient address
+     * addrs[4] => target address
+     * addrs[5] => staticTarget address
+     * addrs[6] => paymentToken address
+     * Sell Order Parameters
+     * addrs[7] => exchange address
+     * addrs[8] => maker address
+     * addrs[9] => taker address
+     * addrs[10] => feeRecipient address
+     * addrs[11] => target address
+     * addrs[12] => staticTarget address
+     * addrs[13] => paymentToken address
+     * @param uints all uints in a sigle array required for making Order struct @see Order strcut
+     * Buy Order Parameters
+     * uints[0] => makerRelayerFee
+     * uints[1] => takerRelayerFee
+     * uints[2] => makerProtocolFee
+     * uints[3] => takerProtocolFee
+     * uints[4] => basePrice
+     * uints[5] => auction extra parameter
+     * uints[6] => listingTime
+     * uints[7] => expirationTime
+     * uints[8] => salt
+     * Sell Order Parameters
+     * uints[9] => makerRelayerFee
+     * uints[10] => takerRelayerFee
+     * uints[11] => makerProtocolFee
+     * uints[12] => takerProtocolFee
+     * uints[13] => basePrice
+     * uints[14] => auction extra parameter
+     * uints[15] => listingTime
+     * uints[16] => expirationTime
+     * uints[17] => salt
+     * @param feeMethodsSidesKindsHowToCalls list of parameters for feeMethods, side, saleKinds and howToCalls
+     * Buy Order Parameter
+     * feeMethodsSidesKindsHowToCalls[0] => feeMethod
+     * feeMethodsSidesKindsHowToCalls[1] => side
+     * feeMethodsSidesKindsHowToCalls[2] => saleKind
+     * feeMethodsSidesKindsHowToCalls[3] => howToCall
+     * Sell Order Parameter
+     * feeMethodsSidesKindsHowToCalls[4] => feeMethod
+     * feeMethodsSidesKindsHowToCalls[5] => side
+     * feeMethodsSidesKindsHowToCalls[6] => saleKind
+     * feeMethodsSidesKindsHowToCalls[7] => howToCall
+     * @param calldataBuy calldata for buy order
+     * @param calldataSell calldata for sell order
+     * @param replacementPatternBuy replacementPattern for buy order
+     * @param replacementPatternSell replacementPattern for sell order
+     * @param staticExtradataBuy   staticExtradata for buy order
+     * @param staticExtradataSell staticExtradata for sell order
+     * @param vs v parameter of signature
+     * vs[0] => buy side v signature parameter
+     * vs[1] => sell side v signature parameter
+     * @param rssMetadata signature parameter and asset metadata
+     * Buy Order Parameters
+     * rssMetadata[0] => r signature parameter
+     * rssMetadata[1] => s signature parameter
+     * Sell Order Parameters
+     * rssMetadata[2] => r signature parameter
+     * rssMetadata[3] => s signature parameter
+     * rssMetadata[4] => asset metadat
+     */
     function atomicMatch_(
         address[14] addrs,
         uint256[18] uints,
@@ -591,7 +938,7 @@ contract Exchange is ExchangeCore {
         bytes replacementPatternBuy,
         bytes replacementPatternSell,
         bytes staticExtradataBuy,
-        bytes staticExtradataSell,
+        bytes staticExtradataSell, 
         uint8[2] vs,
         bytes32[5] rssMetadata
     ) public payable {

@@ -15,8 +15,8 @@ async function main() {
     let testTokenInstance: Contract = TestToken.attach("0x9B23972e96549e23D23e967CC3F15e5f6Ed77458");
     const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
 
-    const buy = makeOrder(exchangeInstance.address, false, proxy, await signers[6].getAddress());
-    const sell = makeOrder(exchangeInstance.address, true, proxy, await signers[7].getAddress());
+    const buy = makeOrder(exchangeInstance.address, false, proxy, await signers[1].getAddress());
+    const sell = makeOrder(exchangeInstance.address, true, proxy, await signers[2].getAddress());
     sell.side = 1
     buy.feeMethod = 1
     sell.feeMethod = 1
@@ -25,9 +25,9 @@ async function main() {
     buy.salt = 7
     sell.salt = 7
     const identities: Identities = {
-        matcher: signers[11],
-        buyer: signers[6],
-        seller: signers[7],
+        matcher: signers[1],
+        buyer: signers[1],
+        seller: signers[2],
     }
     await matchOrder(buy, sell, 0, identities, exchangeInstance)
 }

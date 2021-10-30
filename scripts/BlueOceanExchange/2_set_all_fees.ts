@@ -4,11 +4,11 @@ import "@nomiclabs/hardhat-ethers";
 
 async function main() {
     const signers: Signer[] = await ethers.getSigners()
-    const Exchange = await ethers.getContractFactory("BlueOceanExchange", signers[1]);
-    let exchangeInstance: Contract = Exchange.attach("0xBD313085Cc36c935F1970b772933A3a9F1f0f503");
+    const Exchange = await ethers.getContractFactory("BlueOceanExchange", signers[0]);
+    let exchangeInstance: Contract = Exchange.attach("0x835011805Aac8f8deFd7f76c34D52F9b3e0a8Fd4");
 
-    await exchangeInstance.connect(signers[1]).changeMinimumTakerProtocolFee(0);
-    await exchangeInstance.connect(signers[1]).changeMinimumMakerProtocolFee(0);
+    await exchangeInstance.connect(signers[0]).changeMinimumTakerProtocolFee(0);
+    await exchangeInstance.connect(signers[0]).changeMinimumMakerProtocolFee(0);
 }
 
 main()
