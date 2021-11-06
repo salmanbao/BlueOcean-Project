@@ -14,7 +14,7 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
 contract ProxyRegistry is Ownable {
 
-    /* DelegateProxy implementation contract. Must be initialized. */
+    /* AuthenticatedProxy implementation contract. Must be initialized. */
     address public delegateProxyImplementation;
 
     /* Authenticated proxies by user. */

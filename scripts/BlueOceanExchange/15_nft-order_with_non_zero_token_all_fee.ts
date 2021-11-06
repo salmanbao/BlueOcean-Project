@@ -12,11 +12,11 @@ async function main() {
     const ProxyRegistry = await ethers.getContractFactory("BlueOceanProxyRegistry", signers[0]);
     const TokenTransferProxy = await ethers.getContractFactory("BlueOceanTokenTransferProxy", signers[0]);
 
-    let nftInstance: Contract = BlueOceanNFT.attach("0xB57E0073887062fC1741B9D206346cc8E8F46f8F");
-    let exchangeInstance: Contract = Exchange.attach("0xBD313085Cc36c935F1970b772933A3a9F1f0f503");
-    let testTokenInstance: Contract = TestToken.attach("0x0B1201b813Bf6CE2125d76aC74475accfF943C0E");
-    let proxyRegistryInstance: Contract = ProxyRegistry.attach("0x53d29D539f31e45526bBBEEEB7830C421F12b701");
-    let tokenTransferProxyInstance: Contract = TokenTransferProxy.attach("0x8977CE6289CBE89dCe50ab49d826519500641b6D");
+    let nftInstance: Contract = BlueOceanNFT.attach("0x6fFE0F8cf249b6EEe7E7A2A341A4843c8E08A7AD");
+    let exchangeInstance: Contract = Exchange.attach("0x835011805Aac8f8deFd7f76c34D52F9b3e0a8Fd4");
+    let testTokenInstance: Contract = TestToken.attach("0x28Cb006De3c242698A883fe0CFA692C7f35bd1bc");
+    let proxyRegistryInstance: Contract = ProxyRegistry.attach("0xd646791900B0EFEcB890F6ECc1C2f466e764E8f8");
+    let tokenTransferProxyInstance: Contract = TokenTransferProxy.attach("0xA8f8B372d6Ea18f97e53e57Aa7735CbF32Da342D");
 
     const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
 
@@ -34,8 +34,8 @@ async function main() {
 
     sell.side = 1
 
-    buy.basePrice = 10e9
-    sell.basePrice = 10e9
+    buy.basePrice = 100000000
+    sell.basePrice = 100000000
     buy.makerRelayerFee = 1000
     sell.makerRelayerFee = 1000
 
@@ -46,19 +46,19 @@ async function main() {
     buy.calldata = nftInstance.interface.encodeFunctionData("safeTransferFrom(address,address,uint256)", [
         "0x0000000000000000000000000000000000000000",
         await signers[1].getAddress(),
-        2,
+        4,
     ])
 
     sell.calldata = nftInstance.interface.encodeFunctionData("safeTransferFrom(address,address,uint256)", [
         await signers[2].getAddress(),
         "0x0000000000000000000000000000000000000000",
-        2
+        4
     ])
 
     sell.target = nftInstance.address
     buy.target = nftInstance.address
 
-     buy.replacementPattern = "0x00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    buy.replacementPattern = "0x00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
     sell.replacementPattern = "0x000000000000000000000000000000000000000000000000000000000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000"
 
 
@@ -68,7 +68,7 @@ async function main() {
         buyer: signers[1],
         seller: signers[2],
     }
-    await matchOrder(buy, sell, 0.000001, identities, exchangeInstance)
+    await matchOrder(buy, sell, 0.001, identities, exchangeInstance)
 }
 
 main()

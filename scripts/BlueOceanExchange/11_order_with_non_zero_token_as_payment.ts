@@ -18,7 +18,7 @@ async function main() {
     let tokenTransferProxyInstance: Contract = TokenTransferProxy.attach("0xA8f8B372d6Ea18f97e53e57Aa7735CbF32Da342D")
     const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
 
-    await testTokenInstance.connect(signers[0]).transfer("0x6e8713CBbcEA00482d758C0E4718bA2d6CDFfCd1", ethers.utils.parseEther("1000"))
+    await testTokenInstance.connect(signers[0]).transfer("0xA5Ee676887E090C37C1Dd1df9B0dB1C0bb188695", ethers.utils.parseEther("1000"))
     await testTokenInstance.connect(signers[0]).transfer(await signers[2].getAddress(), ethers.utils.parseEther("1000"))
 
     await testTokenInstance.connect(signers[1]).approve(tokenTransferProxyInstance.address, ethers.utils.parseEther("1000"))
@@ -27,7 +27,8 @@ async function main() {
 
     const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[1].getAddress());
     const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[2].getAddress());
-    sell.side = 1
+    
+    // sell.side = 1
     buy.feeMethod = 1
     sell.feeMethod = 1
     buy.basePrice = 10000

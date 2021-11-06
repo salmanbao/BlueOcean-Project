@@ -56,7 +56,7 @@ describe("BlueOcean Exchange", function () {
     hre.tracer.nameTags[tokenTransferProxyInstance.address] = "TOKEN-TRANSFER";
 
   });
-  
+
 
   it("should allow simple array replacement", async function () {
     expect(await exchangeInstance.callStatic.guardedArrayReplace('0xff', '0x00', '0xff')).to.be.equal("0x00")
@@ -736,11 +736,7 @@ describe("BlueOcean Exchange", function () {
       buyer: signers[4],
       seller: signers[5]
     }
-    console.log(await testTokenInstance.callStatic.balanceOf(await signers[6].getAddress() ) )
-    console.log(await testTokenInstance.callStatic.balanceOf(await signers[7].getAddress() ) )
     await matchOrder(buy, sell, 0, identities, exchangeInstance)
-    console.log(await testTokenInstance.callStatic.balanceOf(await signers[6].getAddress() ) )
-    console.log(await testTokenInstance.callStatic.balanceOf(await signers[7].getAddress() ) )
   })
 
   it("users should have enough tokens and approvals", async function () {
@@ -900,7 +896,6 @@ describe("BlueOcean Exchange", function () {
   it("should allow simple order matching, second fee method, all fees, swapped maker/taker with NFT", async function () {
 
     const proxy = await proxyRegistryInstance.callStatic.proxies(await signers[0].getAddress());
-
     const buy = makeOrder(exchangeInstance.address, true, proxy, await signers[6].getAddress());
     const sell = makeOrder(exchangeInstance.address, false, proxy, await signers[7].getAddress());
 
@@ -918,7 +913,7 @@ describe("BlueOcean Exchange", function () {
     sell.makerProtocolFee = 100
     buy.makerProtocolFee = 100
 
-      sell.makerRelayerFee = 100
+    sell.makerRelayerFee = 100
     buy.makerRelayerFee = 100
 
     sell.takerProtocolFee = 100
